@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmacOnline - Your Trusted Pharmacy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 30px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(102, 126, 234, 0.1);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .cart-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .cart-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 30px 0;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .welcome-section h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .welcome-section p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .tab {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .product-content {
+            padding: 20px;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .product-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .product-brand {
+            font-size: 0.9em;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .prescription-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .product-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .product-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .dosage-info {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 5px 10px;
+            border-radius: 10px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .category-tag {
+            background: rgba(118, 75, 162, 0.1);
+            padding: 5px 10px;
+            border-radius: 10px;
+            color: #764ba2;
+            font-weight: 600;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .price {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .add-to-cart {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .add-to-cart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .no-products {
+            text-align: center;
+            padding: 50px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search-container {
+                max-width: 100%;
+                margin: 0;
+                width: 100%;
+            }
+
+            .tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .tab {
+                width: 80%;
+                max-width: 300px;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .welcome-section h1 {
+                font-size: 2em;
+            }
+
+            .product-details {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">PharmacOnline</div>
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search medications..." id="searchInput">
+                </div>
+                <button class="cart-icon" onclick="openCart()">🛒 Cart</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <h1>Your Trusted Online Pharmacy</h1>
+                <p>Quality medications delivered to your doorstep</p>
+            </section>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('all')">All Products</button>
+                <button class="tab" onclick="showTab('prescription')">Prescription Only</button>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading">Loading products...</div>
+
+            <!-- Products Grid -->
+            <div id="productsGrid" class="products-grid" style="display: none;"></div>
+
+            <!-- No Products Message -->
+            <div id="noProducts" class="no-products" style="display: none;">
+                No products found matching your criteria.
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNMdcbXVMC_QUgVSmgFMXlW84DWQs9QZE",
+            authDomain: "pharmac-online.firebaseapp.com",
+            projectId: "pharmac-online",
+            storageBucket: "pharmac-online.appspot.com",
+            messagingSenderId: "968868548902",
+            appId: "1:968868548902:web:0607bd63857c7c538131e7"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Global variables
+        let allProducts = [];
+        let filteredProducts = [];
+        let currentTab = 'all';
+        let cart = [];
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            setupSearch();
+        });
+
+        // Load products from Firestore
+        async function loadProducts() {
+            try {
+                const snapshot = await db.collection('Products')
+                    .where('stock', '==', 'Available')
+                    .get();
+
+                allProducts = [];
+                snapshot.forEach((doc) => {
+                    allProducts.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Sort products by name
+                allProducts.sort((a, b) => a.productName.localeCompare(b.productName));
+
+                document.getElementById('loading').style.display = 'none';
+                showTab(currentTab);
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('loading').innerHTML = 'Error loading products. Please try again.';
+            }
+        }
+
+        // Show tab content
+        function showTab(tab) {
+            currentTab = tab;
+            
+            // Update tab appearance
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event?.target?.classList.add('active') || document.querySelector(`[onclick="showTab('${tab}')"]`).classList.add('active');
+
+            // Filter products
+            if (tab === 'prescription') {
+                filteredProducts = allProducts.filter(product => product.prescriptionRequired === true);
+            } else {
+                filteredProducts = allProducts;
+            }
+
+            // Apply search filter if search is active
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) {
+                filteredProducts = filteredProducts.filter(product => 
+                    product.productName.toLowerCase().includes(searchTerm) ||
+                    product.brandName.toLowerCase().includes(searchTerm) ||
+                    product.category.toLowerCase().includes(searchTerm) ||
+                    product.description.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            displayProducts();
+        }
+
+        // Display products
+        function displayProducts() {
+            const grid = document.getElementById('productsGrid');
+            const noProducts = document.getElementById('noProducts');
+
+            if (filteredProducts.length === 0) {
+                grid.style.display = 'none';
+                noProducts.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            noProducts.style.display = 'none';
+
+            grid.innerHTML = filteredProducts.map(product => `
+                <div class="product-card">
+                    <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
+                    <div class="product-content">
+                        <div class="product-header">
+                            <div>
+                                <div class="product-name">${product.productName}</div>
+                                <div class="product-brand">${product.brandName}</div>
+                            </div>
+                            ${product.prescriptionRequired ? '<span class="prescription-badge">Rx</span>' : ''}
+                        </div>
+                        <div class="product-description">${product.description}</div>
+                        <div class="product-details">
+                            <span class="dosage-info">${product.dosageForm} - ${product.dosageStrength}</span>
+                            <span class="category-tag">${product.category}</span>
+                        </div>
+                        <div class="product-footer">
+                            <span class="price">₦${product.price.toLocaleString()}</span>
+                            <button class="add-to-cart" onclick="addToCart('${product.id}')">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Setup search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    showTab(currentTab);
+                }, 300);
+            });
+        }
+
+        // Add to cart functionality
+        function addToCart(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (product) {
+                const existingItem = cart.find(item => item.id === productId);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        ...product,
+                        quantity: 1
+                    });
+                }
+                
+                // Visual feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Added!';
+                button.style.background = '#27ae60';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 1000);
+
+                updateCartDisplay();
+            }
+        }
+
+        // Update cart display
+        function updateCartDisplay() {
+            const cartIcon = document.querySelector('.cart-icon');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartIcon.textContent = `🛒 Cart (${totalItems})`;
+        }
+
+        // Open cart (placeholder)
+        function openCart() {
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            
+            const cartItems = cart.map(item => 
+                `${item.productName} x${item.quantity} - ₦${(item.price * item.quantity).toLocaleString()}`
+            ).join('\n');
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            alert(`Cart Contents:\n\n${cartItems}\n\nTotal: ₦${total.toLocaleString()}`);
+        }
+    </script>
+</body>
+</html>
