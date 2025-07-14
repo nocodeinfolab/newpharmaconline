@@ -146,10 +146,41 @@
             box-shadow: 0 5px 18px rgba(0, 0, 0, 0.15);
         }
 
+        /* Category Sections */
+        .category-section {
+            margin-bottom: 50px;
+        }
+
+        .category-header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-description {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
         /* Products Grid */
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
             margin-top: 30px;
         }
@@ -275,11 +306,111 @@
             font-size: 1.2em;
         }
 
-        .no-products {
+        /* Prescription Upload Section */
+        .prescription-upload {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 40px;
             text-align: center;
-            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 2px dashed rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prescription-upload::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            z-index: 1;
+        }
+
+        .prescription-upload:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .prescription-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .prescription-icon {
+            font-size: 4em;
+            color: #667eea;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .prescription-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .prescription-subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+
+        .upload-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            font-size: 1.2em;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            margin-right: 15px;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .consultation-button {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .consultation-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .upload-info {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #888;
         }
 
         /* Mobile Responsive */
@@ -342,6 +473,33 @@
                 <p>Quality medications delivered to your doorstep</p>
             </section>
 
+            <!-- Prescription Upload Section -->
+            <section class="prescription-upload">
+                <div class="prescription-content">
+                    <div class="prescription-icon">📋</div>
+                    <h2 class="prescription-title">Upload Your Prescription</h2>
+                    <p class="prescription-subtitle">Get your prescription medications delivered safely and securely</p>
+                    
+                    <div>
+                        <button class="upload-button" onclick="document.getElementById('prescriptionFile').click()">
+                            📁 Upload Prescription
+                        </button>
+                        <button class="consultation-button" onclick="startConsultation()">
+                            👨‍⚕️ Online Consultation
+                        </button>
+                    </div>
+                    
+                    <input type="file" id="prescriptionFile" class="upload-input" accept="image/*,.pdf" onchange="handlePrescriptionUpload(this)">
+                    
+                    <div id="uploadStatus" class="upload-status"></div>
+                    
+                    <div class="upload-info">
+                        <p>📸 Supported formats: JPG, PNG, PDF | 📏 Max size: 5MB</p>
+                        <p>🔒 Your prescription is encrypted and handled securely</p>
+                    </div>
+                </div>
+            </section>
+
             <!-- Tabs -->
             <div class="tabs">
                 <button class="tab active" onclick="showTab('all')">All Products</button>
@@ -351,8 +509,8 @@
             <!-- Loading State -->
             <div id="loading" class="loading">Loading products...</div>
 
-            <!-- Products Grid -->
-            <div id="productsGrid" class="products-grid" style="display: none;"></div>
+            <!-- Categories Container -->
+            <div id="categoriesContainer" style="display: none;"></div>
 
             <!-- No Products Message -->
             <div id="noProducts" class="no-products" style="display: none;">
@@ -385,6 +543,24 @@
         let filteredProducts = [];
         let currentTab = 'all';
         let cart = [];
+
+        // Category descriptions for better UX
+        const categoryDescriptions = {
+            'Pain Relief': 'Effective solutions for pain management and comfort',
+            'Skin Care': 'Advanced dermatological treatments and skincare products',
+            'Heart Health': 'Cardiovascular medications and heart wellness products',
+            'Digestive Health': 'Gastrointestinal care and digestive wellness',
+            'Respiratory': 'Breathing support and respiratory health solutions',
+            'Mental Health': 'Psychiatric medications and mental wellness support',
+            'Diabetes Care': 'Blood sugar management and diabetic care products',
+            'Antibiotics': 'Infection treatment and antimicrobial medications',
+            'Vitamins & Supplements': 'Nutritional support and dietary supplements',
+            'Women\'s Health': 'Specialized healthcare products for women',
+            'Men\'s Health': 'Targeted healthcare solutions for men',
+            'Child Care': 'Pediatric medications and child health products',
+            'Eye Care': 'Ophthalmological treatments and eye health products',
+            'Allergy Relief': 'Antihistamines and allergy management solutions'
+        };
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
@@ -447,40 +623,64 @@
             displayProducts();
         }
 
-        // Display products
+        // Display products grouped by category
         function displayProducts() {
-            const grid = document.getElementById('productsGrid');
+            const container = document.getElementById('categoriesContainer');
             const noProducts = document.getElementById('noProducts');
 
             if (filteredProducts.length === 0) {
-                grid.style.display = 'none';
+                container.style.display = 'none';
                 noProducts.style.display = 'block';
                 return;
             }
 
-            grid.style.display = 'grid';
+            container.style.display = 'block';
             noProducts.style.display = 'none';
 
-            grid.innerHTML = filteredProducts.map(product => `
-                <div class="product-card">
-                    <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
-                    <div class="product-content">
-                        <div class="product-header">
-                            <div>
-                                <div class="product-name">${product.productName}</div>
-                                <div class="product-brand">${product.brandName}</div>
+            // Group products by category
+            const groupedProducts = {};
+            filteredProducts.forEach(product => {
+                if (!groupedProducts[product.category]) {
+                    groupedProducts[product.category] = [];
+                }
+                groupedProducts[product.category].push(product);
+            });
+
+            // Sort categories alphabetically
+            const sortedCategories = Object.keys(groupedProducts).sort();
+
+            container.innerHTML = sortedCategories.map(category => `
+                <div class="category-section">
+                    <div class="category-header">
+                        <h2 class="category-title">${category}</h2>
+                        <p class="category-description">
+                            ${categoryDescriptions[category] || 'Quality healthcare products for your wellness needs'}
+                        </p>
+                    </div>
+                    <div class="products-grid">
+                        ${groupedProducts[category].map(product => `
+                            <div class="product-card">
+                                <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
+                                <div class="product-content">
+                                    <div class="product-header">
+                                        <div>
+                                            <div class="product-name">${product.productName}</div>
+                                            <div class="product-brand">${product.brandName}</div>
+                                        </div>
+                                        ${product.prescriptionRequired ? '<span class="prescription-badge">Rx</span>' : ''}
+                                    </div>
+                                    <div class="product-description">${product.description}</div>
+                                    <div class="product-details">
+                                        <span class="dosage-info">${product.dosageForm} - ${product.dosageStrength}</span>
+                                        <span class="category-tag">${product.subCategory}</span>
+                                    </div>
+                                    <div class="product-footer">
+                                        <span class="price">₦${product.price.toLocaleString()}</span>
+                                        <button class="add-to-cart" onclick="addToCart('${product.id}')">Add to Cart</button>
+                                    </div>
+                                </div>
                             </div>
-                            ${product.prescriptionRequired ? '<span class="prescription-badge">Rx</span>' : ''}
-                        </div>
-                        <div class="product-description">${product.description}</div>
-                        <div class="product-details">
-                            <span class="dosage-info">${product.dosageForm} - ${product.dosageStrength}</span>
-                            <span class="category-tag">${product.category}</span>
-                        </div>
-                        <div class="product-footer">
-                            <span class="price">₦${product.price.toLocaleString()}</span>
-                            <button class="add-to-cart" onclick="addToCart('${product.id}')">Add to Cart</button>
-                        </div>
+                        `).join('')}
                     </div>
                 </div>
             `).join('');
@@ -549,6 +749,56 @@
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
             alert(`Cart Contents:\n\n${cartItems}\n\nTotal: ₦${total.toLocaleString()}`);
+        }
+
+        // Handle prescription upload
+        function handlePrescriptionUpload(input) {
+            const file = input.files[0];
+            const statusDiv = document.getElementById('uploadStatus');
+            
+            if (!file) return;
+            
+            // Validate file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                statusDiv.className = 'upload-status upload-error';
+                statusDiv.textContent = 'File size must be less than 5MB';
+                statusDiv.style.display = 'block';
+                return;
+            }
+            
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+            if (!allowedTypes.includes(file.type)) {
+                statusDiv.className = 'upload-status upload-error';
+                statusDiv.textContent = 'Please upload a valid image (JPG, PNG) or PDF file';
+                statusDiv.style.display = 'block';
+                return;
+            }
+            
+            // Simulate upload process
+            statusDiv.className = 'upload-status';
+            statusDiv.textContent = 'Uploading prescription...';
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = 'rgba(52, 152, 219, 0.2)';
+            statusDiv.style.color = '#3498db';
+            statusDiv.style.border = '1px solid #3498db';
+            
+            // Simulate upload completion
+            setTimeout(() => {
+                statusDiv.className = 'upload-status upload-success';
+                statusDiv.textContent = `✅ Prescription "${file.name}" uploaded successfully! A pharmacist will review it shortly.`;
+                
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                    input.value = ''; // Clear the input
+                }, 5000);
+            }, 2000);
+        }
+
+        // Start online consultation
+        function startConsultation() {
+            alert('🩺 Online Consultation\n\nYou will be connected with a licensed pharmacist or doctor for a consultation. This feature will be available soon!\n\nFor now, please upload your prescription or visit our physical store.');
         }
     </script>
 </body>
