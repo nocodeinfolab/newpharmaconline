@@ -16,6 +16,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
+            padding-bottom: 70px; /* Space for bottom navigation */
         }
 
         .container {
@@ -24,7 +25,7 @@
             padding: 0 20px;
         }
 
-        /* Header */
+        /* Compact Header */
         .header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -33,17 +34,22 @@
             top: 0;
             z-index: 100;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            left: 0;
+            right: 0;
         }
 
         .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 0;
+            padding: 10px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .logo {
-            font-size: 28px;
+            font-size: 22px;
             font-weight: bold;
             color: #667eea;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
@@ -51,64 +57,108 @@
 
         .search-container {
             flex: 1;
-            max-width: 400px;
-            margin: 0 30px;
+            max-width: 300px;
+            margin: 0 20px;
             position: relative;
         }
 
         .search-input {
             width: 100%;
-            padding: 12px 20px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 25px;
+            border-radius: 20px;
             background: rgba(102, 126, 234, 0.1);
-            font-size: 16px;
+            font-size: 14px;
             outline: none;
             transition: all 0.3s ease;
         }
 
         .search-input:focus {
             background: rgba(102, 126, 234, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
         }
 
-        .cart-icon {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 16px;
-            cursor: pointer;
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 0;
+            z-index: 100;
+            box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .bottom-nav-content {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #667eea;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 10px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            background: none;
+            border: none;
+            cursor: pointer;
         }
 
-        .cart-icon:hover {
+        .nav-item:hover, .nav-item.active {
+            background: rgba(102, 126, 234, 0.1);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .cart-badge {
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 16px;
+            text-align: center;
         }
 
         /* Main Content */
         .main-content {
-            padding: 30px 0;
+            padding: 20px 0;
         }
 
         .welcome-section {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             color: white;
         }
 
         .welcome-section h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 2em;
+            margin-bottom: 8px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .welcome-section p {
-            font-size: 1.2em;
+            font-size: 1.1em;
             opacity: 0.9;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
@@ -117,16 +167,16 @@
         .tabs {
             display: flex;
             justify-content: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             gap: 10px;
         }
 
         .tab {
             background: rgba(255, 255, 255, 0.9);
             border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 16px;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
@@ -148,25 +198,41 @@
 
         /* Category Sections */
         .category-section {
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
         .category-header {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
             border: 1px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         .category-title {
-            font-size: 1.5em;
+            font-size: 1.3em;
             font-weight: bold;
             color: white;
             text-align: center;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 18px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
         }
 
         /* Horizontal Scrolling Products */
@@ -174,10 +240,11 @@
             overflow-x: auto;
             overflow-y: hidden;
             padding-bottom: 10px;
+            position: relative;
         }
 
         .products-scroll-container::-webkit-scrollbar {
-            height: 8px;
+            height: 6px;
         }
 
         .products-scroll-container::-webkit-scrollbar-track {
@@ -196,55 +263,58 @@
 
         .products-horizontal-grid {
             display: flex;
-            gap: 20px;
+            gap: 12px;
             min-width: max-content;
             padding: 5px;
         }
 
+        /* Compact Product Cards */
         .product-card {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            min-width: 280px;
+            width: 160px;
             flex-shrink: 0;
         }
 
         .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
 
         .product-image {
             width: 100%;
-            height: 200px;
+            height: 100px;
             object-fit: cover;
-            border-radius: 15px 15px 0 0;
+            border-radius: 12px 12px 0 0;
         }
 
         .product-content {
-            padding: 20px;
+            padding: 12px;
         }
 
         .product-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .product-name {
-            font-size: 1.2em;
+            font-size: 0.9em;
             font-weight: bold;
             color: #333;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .product-brand {
-            font-size: 0.9em;
+            font-size: 0.75em;
             color: #667eea;
             font-weight: 600;
         }
@@ -252,50 +322,60 @@
         .prescription-badge {
             background: #ff6b6b;
             color: white;
-            padding: 4px 8px;
-            border-radius: 10px;
-            font-size: 0.8em;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.7em;
             font-weight: bold;
+            position: absolute;
+            top: 8px;
+            right: 8px;
         }
 
         .product-description {
             color: #666;
-            margin-bottom: 15px;
-            line-height: 1.4;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            font-size: 0.8em;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .product-details {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 0.9em;
+            margin-bottom: 10px;
+            font-size: 0.75em;
         }
 
         .dosage-info {
             background: rgba(102, 126, 234, 0.1);
-            padding: 5px 10px;
-            border-radius: 10px;
+            padding: 3px 6px;
+            border-radius: 6px;
             color: #667eea;
             font-weight: 600;
+            display: inline-block;
+            margin-bottom: 4px;
         }
 
         .category-tag {
             background: rgba(118, 75, 162, 0.1);
-            padding: 5px 10px;
-            border-radius: 10px;
+            padding: 3px 6px;
+            border-radius: 6px;
             color: #764ba2;
             font-weight: 600;
+            display: inline-block;
+            font-size: 0.7em;
         }
 
         .product-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .price {
-            font-size: 1.5em;
+            font-size: 1.1em;
             font-weight: bold;
             color: #2c3e50;
         }
@@ -304,33 +384,34 @@
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
+            padding: 6px 12px;
+            border-radius: 15px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            font-size: 0.8em;
         }
 
         .add-to-cart:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
         .loading {
             text-align: center;
-            padding: 50px;
+            padding: 40px;
             color: white;
-            font-size: 1.2em;
+            font-size: 1.1em;
         }
 
         /* Prescription Upload Section */
         .prescription-upload {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
             text-align: center;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(102, 126, 234, 0.3);
@@ -343,24 +424,24 @@
         }
 
         .prescription-title {
-            font-size: 1.3em;
+            font-size: 1.1em;
             font-weight: bold;
             color: #333;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .upload-button {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 10px 25px;
-            border-radius: 20px;
-            font-size: 0.95em;
+            padding: 8px 20px;
+            border-radius: 15px;
+            font-size: 0.9em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
-            margin-right: 10px;
+            margin-right: 8px;
         }
 
         .upload-button:hover {
@@ -372,9 +453,9 @@
             background: rgba(255, 255, 255, 0.9);
             color: #667eea;
             border: 1px solid #667eea;
-            padding: 10px 25px;
-            border-radius: 20px;
-            font-size: 0.95em;
+            padding: 8px 20px;
+            border-radius: 15px;
+            font-size: 0.9em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -390,45 +471,72 @@
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .header-content {
-                flex-direction: column;
-                gap: 15px;
+                padding: 8px 15px;
+            }
+
+            .logo {
+                font-size: 20px;
             }
 
             .search-container {
-                max-width: 100%;
-                margin: 0;
-                width: 100%;
+                max-width: 250px;
+                margin: 0 15px;
             }
 
-            .tabs {
-                flex-direction: column;
-                align-items: center;
+            .search-input {
+                font-size: 14px;
+                padding: 6px 12px;
             }
 
-            .tab {
-                width: 80%;
-                max-width: 300px;
+            .container {
+                padding: 0 15px;
             }
 
-            .products-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
+            .product-card {
+                width: 140px;
+            }
+
+            .product-image {
+                height: 80px;
+            }
+
+            .product-content {
+                padding: 10px;
+            }
+
+            .product-name {
+                font-size: 0.85em;
+            }
+
+            .price {
+                font-size: 1em;
+            }
+
+            .add-to-cart {
+                padding: 5px 10px;
+                font-size: 0.75em;
             }
 
             .welcome-section h1 {
-                font-size: 2em;
+                font-size: 1.8em;
             }
 
-            .product-details {
-                flex-direction: column;
-                gap: 10px;
+            .prescription-upload {
+                padding: 12px;
+            }
+
+            .upload-button, .consultation-button {
+                padding: 6px 15px;
+                font-size: 0.85em;
+                margin: 2px;
             }
         }
+
         .no-products {
             text-align: center;
-            padding: 50px;
+            padding: 40px;
             color: white;
-            font-size: 1.2em;
+            font-size: 1.1em;
         }
 
         /* File Upload Hidden Input */
@@ -437,11 +545,12 @@
         }
 
         .upload-status {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 10px;
+            margin-top: 12px;
+            padding: 8px;
+            border-radius: 8px;
             font-weight: bold;
             display: none;
+            font-size: 0.9em;
         }
 
         .upload-success {
@@ -455,18 +564,26 @@
             color: #e74c3c;
             border: 1px solid #e74c3c;
         }
+
+        /* Show scroll indicator only when there are more items */
+        .has-more-items .scroll-indicator {
+            display: block;
+        }
+
+        .scroll-indicator {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
+        <!-- Compact Header -->
         <header class="header">
             <div class="header-content">
                 <div class="logo">PharmacOnline</div>
                 <div class="search-container">
                     <input type="text" class="search-input" placeholder="Search medications..." id="searchInput">
                 </div>
-                <button class="cart-icon" onclick="openCart()">🛒 Cart</button>
             </div>
         </header>
 
@@ -511,6 +628,29 @@
             </div>
         </main>
     </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-content">
+            <button class="nav-item active" onclick="showHome()">
+                <div class="nav-icon">🏠</div>
+                <div>Home</div>
+            </button>
+            <button class="nav-item" onclick="showCategories()">
+                <div class="nav-icon">📋</div>
+                <div>Categories</div>
+            </button>
+            <button class="nav-item" onclick="showPrescriptions()">
+                <div class="nav-icon">💊</div>
+                <div>Prescriptions</div>
+            </button>
+            <button class="nav-item" onclick="openCart()" style="position: relative;">
+                <div class="nav-icon">🛒</div>
+                <div>Cart</div>
+                <div id="cartBadge" class="cart-badge" style="display: none;">0</div>
+            </button>
+        </div>
+    </nav>
 
     <!-- Firebase SDK -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
@@ -607,40 +747,44 @@
             // Sort categories alphabetically
             const sortedCategories = Object.keys(groupedProducts).sort();
 
-            container.innerHTML = sortedCategories.map(category => `
-                <div class="category-section">
-                    <div class="category-header">
-                        <h2 class="category-title">${category}</h2>
-                    </div>
-                    <div class="products-scroll-container">
-                        <div class="products-horizontal-grid">
-                            ${groupedProducts[category].map(product => `
-                                <div class="product-card">
-                                    <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
-                                    <div class="product-content">
-                                        <div class="product-header">
-                                            <div>
+            container.innerHTML = sortedCategories.map(category => {
+                const categoryProducts = groupedProducts[category];
+                const hasMoreItems = categoryProducts.length > 2; // Show indicator if more than 2 items
+                
+                return `
+                    <div class="category-section">
+                        <div class="category-header ${hasMoreItems ? 'has-more-items' : ''}">
+                            <h2 class="category-title">${category}</h2>
+                            ${hasMoreItems ? '<div class="scroll-indicator">👉</div>' : ''}
+                        </div>
+                        <div class="products-scroll-container">
+                            <div class="products-horizontal-grid">
+                                ${categoryProducts.map(product => `
+                                    <div class="product-card" style="position: relative;">
+                                        <img src="${product.imageUrl}" alt="${product.productName}" class="product-image">
+                                        ${product.prescriptionRequired ? '<span class="prescription-badge">Rx</span>' : ''}
+                                        <div class="product-content">
+                                            <div class="product-header">
                                                 <div class="product-name">${product.productName}</div>
                                                 <div class="product-brand">${product.brandName}</div>
                                             </div>
-                                            ${product.prescriptionRequired ? '<span class="prescription-badge">Rx</span>' : ''}
-                                        </div>
-                                        <div class="product-description">${product.description}</div>
-                                        <div class="product-details">
-                                            <span class="dosage-info">${product.dosageForm} - ${product.dosageStrength}</span>
-                                            <span class="category-tag">${product.subCategory}</span>
-                                        </div>
-                                        <div class="product-footer">
-                                            <span class="price">₦${product.price.toLocaleString()}</span>
-                                            <button class="add-to-cart" onclick="addToCart('${product.id}')">Add to Cart</button>
+                                            <div class="product-description">${product.description}</div>
+                                            <div class="product-details">
+                                                <div class="dosage-info">${product.dosageForm} - ${product.dosageStrength}</div>
+                                                <div class="category-tag">${product.subCategory}</div>
+                                            </div>
+                                            <div class="product-footer">
+                                                <span class="price">₦${product.price.toLocaleString()}</span>
+                                                <button class="add-to-cart" onclick="addToCart('${product.id}')">Add to Cart</button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            `).join('')}
+                                `).join('')}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Setup search functionality
@@ -687,13 +831,44 @@
 
         // Update cart display
         function updateCartDisplay() {
-            const cartIcon = document.querySelector('.cart-icon');
+            const cartBadge = document.getElementById('cartBadge');
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            cartIcon.textContent = `🛒 Cart (${totalItems})`;
+            
+            if (totalItems > 0) {
+                cartBadge.textContent = totalItems;
+                cartBadge.style.display = 'block';
+            } else {
+                cartBadge.style.display = 'none';
+            }
+        }
+
+        // Navigation functions
+        function showHome() {
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            // Add active class to home
+            event.target.closest('.nav-item').classList.add('active');
+        }
+
+        function showCategories() {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            // Scroll to categories or show category view
+            document.getElementById('categoriesContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showPrescriptions() {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            // Scroll to prescription upload
+            document.querySelector('.prescription-upload').scrollIntoView({ behavior: 'smooth' });
         }
 
         // Open cart (placeholder)
         function openCart() {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            
             if (cart.length === 0) {
                 alert('Your cart is empty!');
                 return;
