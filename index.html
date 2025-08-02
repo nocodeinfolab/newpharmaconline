@@ -484,6 +484,8 @@
             flex-direction: column;
             height: auto;
             margin-bottom: 15px;
+            border: 1px solid #4a6bff;
+            box-shadow: 0 4px 20px rgba(74, 107, 255, 0.1);
         }
 
         .product-image {
@@ -529,9 +531,7 @@
         }
 
         .stock-badge-container {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 8px;
+            display: none;
         }
 
         .product-stock, .prescription-badge {
@@ -547,28 +547,23 @@
             color: white;
         }
 
-        .prescription-badge {
-            background: #f8961e;
-            color: white;
-        }
 
         .add-to-cart-container {
             display: flex;
-            margin-top: auto;
             gap: 8px;
             padding-top: 8px;
+            align-items: center; /* Align items vertically */
         }
 
         .quantity-input {
-            width: 50px;
-            padding: 7px;
+            width: 60px;
+            padding: 6px;
             border: 2px solid rgba(74, 107, 255, 0.3);
-            border-radius: 12px;
+            border-radius: 8px;
             font-size: 0.85rem;
             text-align: center;
             font-weight: 500;
-            outline: none;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            margin: 0;
         }
 
         .quantity-input:focus {
@@ -580,8 +575,9 @@
             background: #4a6bff;
             color: white;
             border: none;
+            width: 100%;
             border-radius: 12px;
-            padding: 7px 8px;
+            padding: 10px;
             font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -807,6 +803,12 @@
 
         ::-webkit-scrollbar-track {
             background-color: transparent;
+        }
+        .quantity-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
         }
     </style>
 </head>
@@ -1165,7 +1167,7 @@
                     categorySection.appendChild(sliderControls);
                     
                     // Set up auto-scrolling for this category
-                    setupAutoScroll(category, categoryProducts.length);
+                    //setupAutoScroll(category, categoryProducts.length);
                     
                     // Set up touch/swipe events
                     setupSwipeEvents(productsSlider, category, categoryProducts.length);
@@ -1194,17 +1196,14 @@
                     <h3 class="product-name">${product.productName}</h3>
                     <p class="product-brand">${product.brandName || 'Generic'}</p>
                     <p class="product-price">${formattedPrice}</p>
-                    <div class="stock-badge-container">
-                        <span class="product-stock">In Stock</span>
+                    <div class="quantity-row">
+                        <input type="number" class="quantity-input" min="1" value="1" placeholder="Qty">
                         ${product.prescriptionRequired ? '<span class="prescription-badge">Rx Required</span>' : ''}
                     </div>
-                    <div class="add-to-cart-container">
-                        <input type="number" class="quantity-input" min="1" value="1" placeholder="Qty">
-                        <button class="add-to-cart-btn">
-                            <span class="btn-text">Add to cart</span>
-                            <span class="spinner"></span>
-                        </button>
-                    </div>
+                    <button class="add-to-cart-btn">
+                        <span class="btn-text">Add to cart</span>
+                        <span class="spinner"></span>
+                    </button>
                 </div>
             `;
             
