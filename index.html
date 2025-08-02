@@ -1346,11 +1346,9 @@
             const controls = slider?.closest('.category-section')?.querySelector('.slider-controls');
             
             if (slider) {
-                // Calculate the translateX value based on slide index
                 const translateX = -(slideIndex * 100);
                 slider.style.transform = `translateX(${translateX}%)`;
                 
-                // Update active dot if controls exist
                 if (controls) {
                     const dots = controls.querySelectorAll('.slider-dot');
                     dots.forEach((dot, index) => {
@@ -1361,6 +1359,9 @@
                         }
                     });
                 }
+                
+                // Store the current slide position
+                slider.dataset.currentSlide = slideIndex;
             }
         }
 
@@ -1382,63 +1383,46 @@
             if (productCount <= 2) return;
 
             let touchStartX = 0;
-            let touchStartY = 0;
             let touchEndX = 0;
             let isSwiping = false;
             const slideCount = Math.ceil(productCount / 2);
             let currentSlide = 0;
-            let isHorizontalSwipe = false;
 
             slider.addEventListener('touchstart', (e) => {
                 touchStartX = e.changedTouches[0].screenX;
-                touchStartY = e.changedTouches[0].screenY;
                 isSwiping = true;
-                isHorizontalSwipe = false;
-                if (autoScrollIntervals[category]) {
-                    clearInterval(autoScrollIntervals[category]);
-                }
-            }, { passive: false });
-
-            slider.addEventListener('touchmove', (e) => {
-                if (!isSwiping) return;
-
-                const currentX = e.changedTouches[0].screenX;
-                const currentY = e.changedTouches[0].screenY;
-                const deltaX = currentX - touchStartX;
-                const deltaY = currentY - touchStartY;
-
-                // Check if it's horizontal
-                if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    isHorizontalSwipe = true;
-                    e.preventDefault(); // block scroll
-                }
+                // Remove or comment out this auto-scroll clearing
+                // if (autoScrollIntervals[category]) {
+                //     clearInterval(autoScrollIntervals[category]);
+                // }
             }, { passive: false });
 
             slider.addEventListener('touchend', (e) => {
                 if (!isSwiping) return;
-
-                if (isHorizontalSwipe) {
-                    touchEndX = e.changedTouches[0].screenX;
-                    handleSwipe();
-                }
-
+                
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
                 isSwiping = false;
-
-                setTimeout(() => {
-                    setupAutoScroll(category, productCount);
-                }, 1000);
+                
+                // Remove or comment out this auto-scroll restart
+                // setTimeout(() => {
+                //     setupAutoScroll(category, productCount);
+                // }, 1000);
             }, { passive: false });
 
             function handleSwipe() {
                 const threshold = 50;
+                const swipeDistance = touchEndX - touchStartX;
 
-                if (touchEndX < touchStartX - threshold) {
-                    currentSlide = (currentSlide + 1) % slideCount;
-                    goToSlide(category, currentSlide);
-                } else if (touchEndX > touchStartX + threshold) {
-                    currentSlide = (currentSlide - 1 + slideCount) % slideCount;
-                    goToSlide(category, currentSlide);
+                if (swipeDistance < -threshold) {
+                    // Swipe left - next slide
+                    currentSlide = Math.min(currentSlide + 1, slideCount - 1);
+                } else if (swipeDistance > threshold) {
+                    // Swipe right - previous slide
+                    currentSlide = Math.max(currentSlide - 1, 0);
                 }
+                
+                goToSlide(category, currentSlide);
             }
         }
 
