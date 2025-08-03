@@ -1229,14 +1229,14 @@
             return card;
         }
 
-        // Add to cart function (rewritten to use Firebase Auth user)
+        // Add to cart function for users authenticated via email & password
         async function addToCart(product, quantity) {
             const currentUser = firebase.auth().currentUser;
             if (!currentUser) {
                 throw new Error("User not authenticated");
             }
 
-            // Check if cart document exists for this user
+            // Query for user's cart
             const cartQuery = await db.collection('Cart')
                 .where('owner_uid', '==', currentUser.uid)
                 .limit(1)
@@ -1246,16 +1246,16 @@
             const now = new Date();
 
             if (cartQuery.empty) {
-                // Create new cart document
+                // Create new cart document for user
                 cartRef = await db.collection('Cart').add({
                     owner_uid: currentUser.uid,
-                    email_address: currentUser.email, // Optional: for display/reference only
+                    email_address: currentUser.email, // For reference/display
                     created_at: now,
                     updated_at: now
                 });
             } else {
                 cartRef = cartQuery.docs[0].ref;
-                // Update the updated_at field
+                // Update cart's updated_at field
                 await cartRef.update({
                     updated_at: now
                 });
@@ -1269,7 +1269,7 @@
                 .get();
 
             if (!existingItemQuery.empty) {
-                // Update existing item
+                // Update quantity of existing item
                 const existingItem = existingItemQuery.docs[0];
                 const currentQty = existingItem.data().quantity || 0;
                 await existingItem.ref.update({
@@ -1291,7 +1291,7 @@
             }
         }
 
-        // Update cart badge (rewritten to use authenticated user)
+        // Update cart badge for authenticated user
         async function updateCartBadge() {
             const currentUser = firebase.auth().currentUser;
             if (!currentUser) return;
@@ -1563,17 +1563,19 @@
 
 
 
-        // Open cart (placeholder)
+        // Open cart page
         function openCart() {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             event.target.closest('.nav-item').classList.add('active');
             
-            if (!userEmail) {
+            const currentUser = firebase.auth().currentUser;
+            if (!currentUser) {
                 showNotification('Please login to view your cart');
                 return;
             }
             
-            alert('Cart functionality will be implemented fully in the next version');
+            // Redirect to cart.html
+            window.location.href = 'cart.html';
         }
 
         // Handle prescription upload
