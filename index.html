@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <style>
         * {
             margin: 0;
@@ -1029,6 +1030,20 @@
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.firestore();
+        // Authenticate user via token from URL (for WebView integration)
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        if (token) {
+            firebase.auth().signInWithCustomToken(token)
+                .then(() => {
+                    // User is now authenticated!
+                    // You can safely run app logic that requires authentication here, or after this promise resolves.
+                    console.log('User authenticated via custom token!');
+                })
+                .catch((error) => {
+                    console.error('Custom token sign-in failed:', error);
+                });
+        }
 
         // DOM elements
         const categoryModal = document.getElementById('categoryModal');
@@ -1214,49 +1229,45 @@
             return card;
         }
 
-        // Add to cart function (from first code)
+        // Add to cart function (rewritten to use Firebase Auth user)
         async function addToCart(product, quantity) {
-            if (!userEmail) {
-                throw new Error('No user email available');
-            }
-            
-            // Check if cart document exists for this user
             const currentUser = firebase.auth().currentUser;
-            if (!currentUser) throw new Error("User not authenticated");
+            if (!currentUser) {
+                throw new Error("User not authenticated");
+            }
 
+            // Check if cart document exists for this user
             const cartQuery = await db.collection('Cart')
                 .where('owner_uid', '==', currentUser.uid)
                 .limit(1)
                 .get();
-            
+
             let cartRef;
             const now = new Date();
-            
+
             if (cartQuery.empty) {
                 // Create new cart document
                 cartRef = await db.collection('Cart').add({
                     owner_uid: currentUser.uid,
-                    email_address: userEmail,
+                    email_address: currentUser.email, // Optional: for display/reference only
                     created_at: now,
                     updated_at: now
                 });
-                cartDocRef = cartRef;
             } else {
                 cartRef = cartQuery.docs[0].ref;
-                cartDocRef = cartRef;
                 // Update the updated_at field
                 await cartRef.update({
                     updated_at: now
                 });
             }
-            
+
             // Check if product already exists in cart
             const existingItemQuery = await cartRef.collection('Items')
                 .where('product_id', '==', product.id)
                 .where('status', '==', 'Active')
                 .limit(1)
                 .get();
-            
+
             if (!existingItemQuery.empty) {
                 // Update existing item
                 const existingItem = existingItemQuery.docs[0];
@@ -1280,26 +1291,27 @@
             }
         }
 
-        // Update cart badge
+        // Update cart badge (rewritten to use authenticated user)
         async function updateCartBadge() {
-            if (!userEmail) return;
-            
+            const currentUser = firebase.auth().currentUser;
+            if (!currentUser) return;
+
             try {
                 const cartQuery = await db.collection('Cart')
-                    .where('email_address', '==', userEmail)
+                    .where('owner_uid', '==', currentUser.uid)
                     .limit(1)
                     .get();
-                
+
                 if (cartQuery.empty) {
                     cartBadge.style.display = 'none';
                     return;
                 }
-                
-                cartDocRef = cartQuery.docs[0].ref;
+
+                const cartDocRef = cartQuery.docs[0].ref;
                 const itemsSnapshot = await cartDocRef.collection('Items')
                     .where('status', '==', 'Active')
                     .get();
-                
+
                 const count = itemsSnapshot.size;
                 if (count > 0) {
                     cartBadge.textContent = count;
