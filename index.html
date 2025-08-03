@@ -1129,72 +1129,26 @@
 
         // Display category products in modal (using first code's logic)
         function displayCategoryProductsInModal(products) {
-            // Clear any existing auto-scroll intervals
-            Object.values(autoScrollIntervals).forEach(interval => clearInterval(interval));
-            autoScrollIntervals = {};
-
-            // Group products by category (though we're already filtering by category)
-            const categories = {};
-            products.forEach(product => {
-                if (!categories[product.category]) {
-                    categories[product.category] = [];
-                }
-                categories[product.category].push(product);
-            });
-
-            // Display each category (should only be one in this case)
             modalCategoryProducts.innerHTML = '';
-            Object.keys(categories).forEach(category => {
-                const categoryProducts = categories[category];
-                const categorySection = document.createElement('div');
-                categorySection.className = 'category-section';
-                
-                
-                // Create products container with slider
-                const productGrid = document.createElement('div');
-                productGrid.className = 'featured-grid'; // Already styled for grid layout
+            const categorySection = document.createElement('div');
+            categorySection.className = 'category-section';
 
-                categoryProducts.forEach(product => {
-                    productGrid.appendChild(createProductCard(product));
-                });
+            // Only one header per modal
+            //const categoryHeader = document.createElement('div');
+            //categoryHeader.className = 'category-header';
+            //categoryHeader.innerHTML = `<h2 class="category-title">${currentCategory}</h2>`;
+            //categorySection.appendChild(categoryHeader);
 
-                categorySection.appendChild(productGrid);
-
-                
-                // Add slider controls if there are more than 2 products
-                if (categoryProducts.length > 2) {
-                    const sliderControls = document.createElement('div');
-                    sliderControls.className = 'slider-controls';
-                    
-                    // Calculate number of slides needed (2 products per slide)
-                    const slideCount = Math.ceil(categoryProducts.length / 2);
-                    
-                    // Create dots for each slide
-                    for (let i = 0; i < slideCount; i++) {
-                        const dot = document.createElement('div');
-                        dot.className = 'slider-dot';
-                        if (i === 0) dot.classList.add('active');
-                        dot.dataset.slide = i;
-                        dot.dataset.category = category;
-                        dot.addEventListener('click', () => {
-                            goToSlide(category, i);
-                        });
-                        sliderControls.appendChild(dot);
-                    }
-                    
-                    categorySection.appendChild(sliderControls);
-                    
-                    // Set up auto-scrolling for this category
-                    //setupAutoScroll(category, categoryProducts.length);
-                    
-                    // Set up touch/swipe events
-                    setupSwipeEvents(productsSlider, category, categoryProducts.length);
-                }
-                
-                modalCategoryProducts.appendChild(categorySection);
+            // Grid of products
+            const productGrid = document.createElement('div');
+            productGrid.className = 'featured-grid';
+            products.forEach(product => {
+                productGrid.appendChild(createProductCard(product));
             });
-        }
+            categorySection.appendChild(productGrid);
 
+            modalCategoryProducts.appendChild(categorySection);
+        }
         // Create product card (from first code)
         function createProductCard(product) {
             const card = document.createElement('div');
