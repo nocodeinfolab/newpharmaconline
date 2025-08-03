@@ -472,17 +472,15 @@
         }
 
         .product-card {
-            min-width: calc(50% - 10px);
-            flex: 0 0 calc(50% - 10px);
+            width: 100%;
+            flex: 1 1 calc(50% - 10px);
             background: white;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            margin: 0;
             display: flex;
             flex-direction: column;
-            height: auto;
             margin-bottom: 15px;
             border: 1px solid #4a6bff;
             box-shadow: 0 4px 20px rgba(74, 107, 255, 0.1);
@@ -809,6 +807,37 @@
             align-items: center;
             gap: 8px;
             margin: 8px 0;
+        }
+        .prescription-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr); /* 1 column on mobile */
+            gap: 15px;
+            margin-top: 10px;
+            overflow-y: auto;
+            max-height: 60vh; /* vertical scroll if needed */
+            padding-bottom: 20px;
+        }
+
+        @media (min-width: 600px) {
+            .prescription-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (min-width: 900px) {
+            .prescription-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (min-width: 1200px) {
+            .prescription-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .prescription-card {
+            min-width: 0; /* prevents horizontal overflow */
+            width: 100%;  /* fills grid column */
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -1481,7 +1510,7 @@
 
             // Create grid container (vertical display)
             const grid = document.createElement('div');
-            grid.className = 'featured-grid';
+            grid.className = 'prescription-grid';
 
             if (products.length === 0) {
                 grid.innerHTML = `<div class="no-results"><p>No products match your search.</p></div>`;
@@ -1547,13 +1576,15 @@
 
             // Create grid container (vertical display)
             const grid = document.createElement('div');
-            grid.className = 'featured-grid';
+            grid.className = 'prescription-grid';
 
             if (prescriptionProducts.length === 0) {
                 grid.innerHTML = `<div class="no-results"><p>No prescription-only products found.</p></div>`;
             } else {
                 prescriptionProducts.forEach(product => {
-                    grid.appendChild(createProductCard(product));
+                    const card = createProductCard(product);
+                    card.classList.add('prescription-card'); // <-- NEW, for styling
+                    grid.appendChild(card);
                 });
             }
 
