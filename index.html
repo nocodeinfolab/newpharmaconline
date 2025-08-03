@@ -1120,28 +1120,17 @@
                 const categorySection = document.createElement('div');
                 categorySection.className = 'category-section';
                 
-                const categoryHeader = document.createElement('div');
-                categoryHeader.className = 'category-header';
-                categoryHeader.innerHTML = `
-                    <h2 class="category-title">${category}</h2>
-                `;
                 
                 // Create products container with slider
-                const productsContainer = document.createElement('div');
-                productsContainer.className = 'products-container';
-                
-                const productsSlider = document.createElement('div');
-                productsSlider.className = 'products-slider';
-                productsSlider.dataset.category = category;
-                
-                // Add all products to the slider
+                const productGrid = document.createElement('div');
+                productGrid.className = 'featured-grid'; // Already styled for grid layout
+
                 categoryProducts.forEach(product => {
-                    productsSlider.appendChild(createProductCard(product));
+                    productGrid.appendChild(createProductCard(product));
                 });
-                
-                productsContainer.appendChild(productsSlider);
-                categorySection.appendChild(categoryHeader);
-                categorySection.appendChild(productsContainer);
+
+                categorySection.appendChild(productGrid);
+
                 
                 // Add slider controls if there are more than 2 products
                 if (categoryProducts.length > 2) {
@@ -1450,37 +1439,81 @@
         function setupSearch() {
             let searchTimeout;
 
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    if (categoryModal.style.display === 'flex') {
-                        const searchTerm = searchInput.value.trim().toLowerCase();
-                        
-                        if (!searchTerm) {
-                            const categoryProducts = allProducts.filter(product => 
-                                product.category === currentCategory
-                            );
-                            displayCategoryProductsInModal(categoryProducts);
-                            return;
-                        }
-                        
-                        const filteredProducts = allProducts.filter(product => 
-                            product.category === currentCategory &&
-                            (product.productName.toLowerCase().includes(searchTerm) ||
-                            (product.brandName && product.brandName.toLowerCase().includes(searchTerm)))
-                        );
-                        
-                        displayCategoryProductsInModal(filteredProducts);
+                    const searchTerm = searchInput.value.trim().toLowerCase();
+
+                    if (!searchTerm) {
+                        // If input is empty, show categories and hide search results
+                        document.querySelector('.categories-section').style.display = 'block';
+                        document.querySelector('.featured-section').style.display = 'block';
+                        document.getElementById('searchResultsSection')?.remove();
+                        return;
                     }
+
+                    const filteredProducts = allProducts.filter(product => {
+                        const nameMatch = product.productName?.toLowerCase().includes(searchTerm);
+                        const tagMatch = product.tags?.some(tag => tag.toLowerCase().includes(searchTerm));
+                        return nameMatch || tagMatch;
+                    });
+
+                    showSearchResults(filteredProducts);
                 }, 300);
             });
         }
+        function showSearchResults(products) {
+            // Remove old search results if any
+            document.getElementById('searchResultsSection')?.remove();
+
+            // Hide categories and featured section
+            document.querySelector('.categories-section').style.display = 'none';
+            document.querySelector('.featured-section').style.display = 'none';
+
+            // Create a new section
+            const searchSection = document.createElement('section');
+            searchSection.id = 'searchResultsSection';
+            searchSection.className = 'featured-section';
+
+            const title = document.createElement('h2');
+            title.className = 'section-title';
+            title.textContent = '🔍 Search Results';
+
+            // Create grid container (vertical display)
+            const grid = document.createElement('div');
+            grid.className = 'featured-grid';
+
+            if (products.length === 0) {
+                grid.innerHTML = `<div class="no-results"><p>No products match your search.</p></div>`;
+            } else {
+                products.forEach(product => {
+                    grid.appendChild(createProductCard(product));
+                });
+            }
+
+            searchSection.appendChild(title);
+            searchSection.appendChild(grid);
+
+            document.querySelector('.main-content').appendChild(searchSection);
+        }
+
+
+
 
         // Navigation functions
         function showHome() {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             event.target.closest('.nav-item').classList.add('active');
+
+            // Remove any dynamically injected sections
+            document.getElementById('prescriptionsSection')?.remove();
+            document.getElementById('searchResultsSection')?.remove();
+
+            // Show the main sections again
+            document.querySelector('.categories-section').style.display = 'block';
+            document.querySelector('.featured-section').style.display = 'block';
         }
+
 
         function showCategories() {
             document.querySelector('.categories-section').scrollIntoView({ behavior: 'smooth' });
@@ -1489,10 +1522,49 @@
         }
 
         function showPrescriptions() {
-            document.querySelector('.prescription-upload').scrollIntoView({ behavior: 'smooth' });
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             event.target.closest('.nav-item').classList.add('active');
+
+            // Remove any previous result sections
+            document.getElementById('searchResultsSection')?.remove();
+            document.getElementById('prescriptionsSection')?.remove();
+
+            // Hide categories and featured section
+            document.querySelector('.categories-section').style.display = 'none';
+            document.querySelector('.featured-section').style.display = 'none';
+
+            // Filter products where prescriptionRequired is true
+            const prescriptionProducts = allProducts.filter(p => p.prescriptionRequired === true);
+
+            // Create new section
+            const section = document.createElement('section');
+            section.id = 'prescriptionsSection';
+            section.className = 'featured-section';
+
+            const title = document.createElement('h2');
+            title.className = 'section-title';
+            title.textContent = '🩺 Prescription-Only Products';
+
+            // Create grid container (vertical display)
+            const grid = document.createElement('div');
+            grid.className = 'featured-grid';
+
+            if (prescriptionProducts.length === 0) {
+                grid.innerHTML = `<div class="no-results"><p>No prescription-only products found.</p></div>`;
+            } else {
+                prescriptionProducts.forEach(product => {
+                    grid.appendChild(createProductCard(product));
+                });
+            }
+
+            section.appendChild(title);
+            section.appendChild(grid);
+
+            document.querySelector('.main-content').appendChild(section);
         }
+
+
+
 
         // Open cart (placeholder)
         function openCart() {
