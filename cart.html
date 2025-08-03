@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmacOnline - Shopping Cart</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Hide scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* Hide scrollbar for Firefox */
+        html {
+            scrollbar-width: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4a6bff 0%, #5dade2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .cart-content {
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-cart-icon {
+            font-size: 60px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-cart h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .continue-shopping-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .continue-shopping-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .cart-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f0f0f0;
+        }
+
+        .item-row {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f5f5f5;
+            flex-shrink: 0;
+        }
+
+        .item-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .item-price {
+            color: #4CAF50;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .quantity-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .quantity-display {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .remove-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #ff3742;
+            transform: translateY(-1px);
+        }
+
+        .cart-summary {
+            background: white;
+            margin: 20px -20px -20px -20px;
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .summary-row.total {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .checkout-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2e7d32;
+            display: none;
+        }
+
+        .item-total {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                border-radius: 15px;
+                max-width: 100%;
+            }
+            
+            .cart-content {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .cart-item {
+                padding: 12px;
+            }
+            
+            .item-image {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .item-name {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <h1>Shopping Cart</h1>
+        </div>
+
+        <div class="cart-content">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <div class="loading-container" id="loadingContainer">
+                <div class="loading-spinner"></div>
+                <p>Loading your cart...</p>
+            </div>
+
+            <div class="empty-cart" id="emptyCart" style="display: none;">
+                <div class="empty-cart-icon">🛒</div>
+                <h3>Your cart is empty</h3>
+                <p>Add some medications to get started</p>
+                <button class="continue-shopping-btn" onclick="continueShopping()">
+                    Continue Shopping
+                </button>
+            </div>
+
+            <div id="cartItems" style="display: none;">
+                <!-- Cart items will be populated here -->
+            </div>
+
+            <div class="cart-summary" id="cartSummary" style="display: none;">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">₦0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Delivery:</span>
+                    <span id="deliveryFee">₦500</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span id="total">₦0</span>
+                </div>
+                <button class="checkout-btn" id="checkoutBtn" onclick="proceedToCheckout()">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, collection, query, where, getDocs, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNMdcbXVMC_QUgVSmgFMXlW84DWQs9QZE",
+            authDomain: "pharmac-online.firebaseapp.com",
+            projectId: "pharmac-online",
+            storageBucket: "pharmac-online.appspot.com",
+            messagingSenderId: "968868548902",
+            appId: "1:968868548902:web:0607bd63857c7c538131e7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let cartItems = [];
+        const deliveryFee = 500;
+
+        // Global functions
+        window.goBack = function() {
+            history.back();
+        };
+
+        window.continueShopping = function() {
+            window.location.href = 'homepage.html';
+        };
+
+        window.proceedToCheckout = function() {
+            if (cartItems.length === 0) {
+                showError('Your cart is empty');
+                return;
+            }
+            // Redirect to checkout page
+            window.location.href = 'checkout.html';
+        };
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function formatPrice(price) {
+            return new Intl.NumberFormat('en-NG', {
+                style: 'currency',
+                currency: 'NGN',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(price);
+        }
+
+        function showLoading() {
+            document.getElementById('loadingContainer').style.display = 'flex';
+            document.getElementById('emptyCart').style.display = 'none';
+            document.getElementById('cartItems').style.display = 'none';
+            document.getElementById('cartSummary').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingContainer').style.display = 'none';
+        }
+
+        function showEmptyCart() {
+            hideLoading();
+            document.getElementById('emptyCart').style.display = 'block';
+            document.getElementById('cartItems').style.display = 'none';
+            document.getElementById('cartSummary').style.display = 'none';
+        }
+
+        function showCart() {
+            hideLoading();
+            document.getElementById('emptyCart').style.display = 'none';
+            document.getElementById('cartItems').style.display = 'block';
+            document.getElementById('cartSummary').style.display = 'block';
+        }
+
+        async function updateQuantity(itemId, newQuantity) {
+            if (newQuantity < 1) return;
+            
+            try {
+                const itemRef = doc(db, 'Cart', currentUser.uid, 'Items', itemId);
+                await updateDoc(itemRef, {
+                    quantity: newQuantity,
+                    updated_at: new Date()
+                });
+                showSuccess('Quantity updated');
+            } catch (error) {
+                console.error('Error updating quantity:', error);
+                showError('Failed to update quantity');
+            }
+        }
+
+        async function removeItem(itemId) {
+            if (!confirm('Remove this item from your cart?')) return;
+            
+            try {
+                const itemRef = doc(db, 'Cart', currentUser.uid, 'Items', itemId);
+                await deleteDoc(itemRef);
+                showSuccess('Item removed from cart');
+            } catch (error) {
+                console.error('Error removing item:', error);
+                showError('Failed to remove item');
+            }
+        }
+
+        function renderCartItems() {
+            const cartItemsContainer = document.getElementById('cartItems');
+            
+            if (cartItems.length === 0) {
+                showEmptyCart();
+                return;
+            }
+
+            cartItemsContainer.innerHTML = cartItems.map(item => `
+                <div class="cart-item">
+                    <div class="item-row">
+                        <img src="${item.image_url || 'https://via.placeholder.com/60x60?text=Med'}" 
+                             alt="${item.product_name}" 
+                             class="item-image"
+                             onerror="this.src='https://via.placeholder.com/60x60?text=Med'">
+                        <div class="item-details">
+                            <div class="item-name">${item.product_name}</div>
+                            <div class="item-price">${formatPrice(item.price_per_unit)}</div>
+                            <div class="item-total">Total: ${formatPrice(item.price_per_unit * item.quantity)}</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="updateQuantity('${item.id}', ${item.quantity - 1})" ${item.quantity <= 1 ? 'disabled' : ''}>−</button>
+                                <span class="quantity-display">${item.quantity}</span>
+                                <button class="quantity-btn" onclick="updateQuantity('${item.id}', ${item.quantity + 1})">+</button>
+                            </div>
+                            <button class="remove-btn" onclick="removeItem('${item.id}')">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateSummary();
+            showCart();
+        }
+
+        function updateSummary() {
+            const subtotal = cartItems.reduce((sum, item) => sum + (item.price_per_unit * item.quantity), 0);
+            const total = subtotal + deliveryFee;
+
+            document.getElementById('subtotal').textContent = formatPrice(subtotal);
+            document.getElementById('deliveryFee').textContent = formatPrice(deliveryFee);
+            document.getElementById('total').textContent = formatPrice(total);
+        }
+
+        // Make functions globally available
+        window.updateQuantity = updateQuantity;
+        window.removeItem = removeItem;
+
+        // Listen for cart changes
+        async function listenToCartChanges(userId) {
+          try {
+            console.log("[CART] Initializing cart for user:", userId);
+            
+            const cartRef = doc(db, 'Cart', userId);
+            const itemsRef = collection(cartRef, 'Items');
+
+            // 1. First verify full collection access
+            const debugSnapshot = await getDocs(itemsRef);
+            console.log("[DEBUG] Full collection contains:", {
+              count: debugSnapshot.size,
+              items: debugSnapshot.docs.map(doc => doc.data())
+            });
+
+            // 2. Set up real listener with enhanced debugging
+            const q = query(itemsRef, where('status', '==', 'Active'));
+            
+            return onSnapshot(q, 
+              { includeMetadataChanges: true },
+              (snapshot) => {
+                console.log("[CART] Update received:", {
+                  fromCache: snapshot.metadata.fromCache,
+                  hasPendingWrites: snapshot.metadata.hasPendingWrites,
+                  docCount: snapshot.size
+                });
+
+                const items = [];
+                snapshot.forEach((doc) => {
+                  console.log(`[CART] Processing item ${doc.id}:`, doc.data());
+                  items.push({
+                    id: doc.id,
+                    ...doc.data()
+                  });
+                });
+
+                console.log("[CART] Final items array:", items);
+                cartItems = items;
+                renderCartItems();
+              },
+              (error) => {
+                console.error("[CART] Listener error:", {
+                  code: error.code,
+                  message: error.message,
+                  stack: error.stack
+                });
+              }
+            );
+
+          } catch (error) {
+            console.error("[CART] Setup failed:", error);
+            showError("Failed to load cart");
+          }
+        }
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            console.log('[DEBUG] Auth state changed:', {
+                userExists: !!user,
+                uid: user?.uid,
+                email: user?.email
+            });
+            
+            if (user) {
+                currentUser = user;
+                console.log('[DEBUG] User authenticated, starting cart setup');
+                listenToCartChanges(user.uid).catch((error) => {
+                    console.error('[ERROR] Cart setup failed:', error);
+                });
+            } else {
+                console.log('[DEBUG] No user, redirecting to login');
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
