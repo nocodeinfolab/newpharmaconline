@@ -418,6 +418,7 @@
         let currentUser = null;
         let cartItems = [];
         const deliveryFee = 500;
+        let currentCartId = null;
 
         // Global functions
         window.goBack = function() {
@@ -490,33 +491,27 @@
             document.getElementById('cartSummary').style.display = 'block';
         }
 
-        async function updateQuantity(itemId, newQuantity) {
-            if (newQuantity < 1) return;
-            
-            try {
-                const itemRef = doc(db, 'Cart', currentUser.uid, 'Items', itemId);
-                await updateDoc(itemRef, {
-                    quantity: newQuantity,
-                    updated_at: new Date()
-                });
-                showSuccess('Quantity updated');
-            } catch (error) {
-                console.error('Error updating quantity:', error);
-                showError('Failed to update quantity');
-            }
+        async function updateQuantity(cartId, itemId, newQuantity) {
+          try {
+            const itemRef = doc(db, 'Cart', cartId, 'Items', itemId);
+            await updateDoc(itemRef, {
+              quantity: newQuantity,
+              updated_at: new Date()
+            });
+          } catch (error) {
+            console.error('Error updating quantity:', error);
+            showError('Failed to update quantity');
+          }
         }
 
-        async function removeItem(itemId) {
-            if (!confirm('Remove this item from your cart?')) return;
-            
-            try {
-                const itemRef = doc(db, 'Cart', currentUser.uid, 'Items', itemId);
-                await deleteDoc(itemRef);
-                showSuccess('Item removed from cart');
-            } catch (error) {
-                console.error('Error removing item:', error);
-                showError('Failed to remove item');
-            }
+        async function removeItem(cartId, itemId) {
+          try {
+            const itemRef = doc(db, 'Cart', cartId, 'Items', itemId);
+            await deleteDoc(itemRef);
+          } catch (error) {
+            console.error('Error removing item:', error);
+            showError('Failed to remove item');
+          }
         }
 
         function renderCartItems() {
@@ -539,11 +534,11 @@
                             <div class="item-price">${formatPrice(item.price_per_unit)}</div>
                             <div class="item-total">Total: ${formatPrice(item.price_per_unit * item.quantity)}</div>
                             <div class="quantity-controls">
-                                <button class="quantity-btn" onclick="updateQuantity('${item.id}', ${item.quantity - 1})" ${item.quantity <= 1 ? 'disabled' : ''}>−</button>
+                                <button class="quantity-btn" onclick="updateQuantity('${currentCartId}', '${item.id}', ${item.quantity - 1})" ${item.quantity <= 1 ? 'disabled' : ''}>−</button>
                                 <span class="quantity-display">${item.quantity}</span>
-                                <button class="quantity-btn" onclick="updateQuantity('${item.id}', ${item.quantity + 1})">+</button>
+                                <button class="quantity-btn" onclick="updateQuantity('${currentCartId}', '${item.id}', ${item.quantity + 1})">+</button>
                             </div>
-                            <button class="remove-btn" onclick="removeItem('${item.id}')">Remove</button>
+                            <button class="remove-btn" onclick="removeItem('${currentCartId}', '${item.id}')">Remove</button>
                         </div>
                     </div>
                 </div>
@@ -552,7 +547,6 @@
             updateSummary();
             showCart();
         }
-
         function updateSummary() {
             const subtotal = cartItems.reduce((sum, item) => sum + (item.price_per_unit * item.quantity), 0);
             const total = subtotal + deliveryFee;
@@ -571,47 +565,49 @@
           try {
             console.log("[CART] Initializing cart for user:", userId);
             
-            const cartRef = doc(db, 'Cart', userId);
-            const itemsRef = collection(cartRef, 'Items');
+            // 1. Query the user's cart
+            const cartsQuery = query(
+              collection(db, 'Cart'),
+              where('owner_uid', '==', userId)
+            );
 
-            // 1. First verify full collection access
-            const debugSnapshot = await getDocs(itemsRef);
-            console.log("[DEBUG] Full collection contains:", {
-              count: debugSnapshot.size,
-              items: debugSnapshot.docs.map(doc => doc.data())
-            });
-
-            // 2. Set up real listener with enhanced debugging
-            const q = query(itemsRef, where('status', '==', 'Active'));
+            const querySnapshot = await getDocs(cartsQuery);
             
-            return onSnapshot(q, 
-              { includeMetadataChanges: true },
-              (snapshot) => {
-                console.log("[CART] Update received:", {
-                  fromCache: snapshot.metadata.fromCache,
-                  hasPendingWrites: snapshot.metadata.hasPendingWrites,
-                  docCount: snapshot.size
-                });
+            if (querySnapshot.empty) {
+              console.log("[CART] No cart found for user");
+              showEmptyCart();
+              return;
+            }
 
+            // 2. Get the first cart document (assuming one cart per user)
+            const cartDoc = querySnapshot.docs[0]; // <-- Critical for accessing cart data
+            console.log("[CART] Cart document:", cartDoc.id, cartDoc.data());
+
+            // 3. Store the cart ID globally for later use (e.g., update/delete)
+            currentCartId = cartDoc.id; // <-- Now available to updateQuantity()/removeItem()
+            console.log("[CART] Stored cart ID globally:", currentCartId);
+
+            // 4. Reference the Items subcollection (REQUIRED for all cart operations)
+            const itemsRef = collection(db, 'Cart', currentCartId, 'Items'); // <-- Uses currentCartId
+            // Equivalent to: collection(db, 'Cart', cartDoc.id, 'Items');
+
+            // 5. Set up real-time listener for cart items
+            return onSnapshot(
+              query(itemsRef, where('status', '==', 'Active')),
+              (snapshot) => {
                 const items = [];
                 snapshot.forEach((doc) => {
-                  console.log(`[CART] Processing item ${doc.id}:`, doc.data());
                   items.push({
                     id: doc.id,
                     ...doc.data()
                   });
                 });
-
-                console.log("[CART] Final items array:", items);
                 cartItems = items;
                 renderCartItems();
               },
               (error) => {
-                console.error("[CART] Listener error:", {
-                  code: error.code,
-                  message: error.message,
-                  stack: error.stack
-                });
+                console.error("[CART] Listener error:", error);
+                showError("Failed to load cart items");
               }
             );
 
