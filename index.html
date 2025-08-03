@@ -11,14 +11,26 @@
             box-sizing: border-box;
         }
 
+        /* Hide scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* Hide scrollbar for Firefox */
+        html {
+            scrollbar-width: none;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #4a6bff 0%, #5dade2 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            padding: 10px;
+            padding: 10px 10px 10px;
+            overflow-x: hidden;
         }
 
         .container {
@@ -218,26 +230,30 @@
 
         @media (max-width: 480px) {
             body {
-                padding: 5px;
+                padding: 5px 5px 5px;
             }
             
             .container {
-                margin: 5px;
+                margin: 0;
                 border-radius: 15px;
                 max-width: 100%;
             }
             
             .form-container {
-                padding: 25px 15px;
+                padding: 20px 15px;
             }
             
             .header {
-                height: 100px;
+                height: 90px;
             }
             
             .tagline {
-                padding: 12px 15px;
+                padding: 10px 15px;
                 font-size: 0.85em;
+            }
+            
+            .form-group {
+                margin-bottom: 18px;
             }
             
             .form-group input {
@@ -248,6 +264,10 @@
             .submit-btn {
                 padding: 12px;
                 font-size: 15px;
+            }
+            
+            .form-toggle {
+                margin-bottom: 20px;
             }
         }
     </style>
