@@ -1031,7 +1031,7 @@
         }
         const db = firebase.firestore();
         // Authenticate user via token from URL (for WebView integration)
-        const urlParams = new URLSearchParams(window.location.search);
+        /*const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
         if (token) {
             firebase.auth().signInWithCustomToken(token)
@@ -1043,7 +1043,7 @@
                 .catch((error) => {
                     console.error('Custom token sign-in failed:', error);
                 });
-        }
+        }*/
 
         // DOM elements
         const categoryModal = document.getElementById('categoryModal');
@@ -1061,22 +1061,22 @@
         let cartDocRef = null;
         let autoScrollIntervals = {};
 
-        // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            userEmail = getEmailFromURL();
-            loadProducts();
-            setupSearch();
-            
-            if (!userEmail) {
-                console.warn("No email parameter found — user not logged in");
-            }
+            // Initialize Firebase auth state observer
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    console.log('User is signed in:', user.email);
+                    updateCartBadge(); // Update UI for logged-in user
+                    loadProducts();    // Load products after auth confirmation
+                    setupSearch();     // Initialize search functionality
+                } else {
+                    console.log('User is signed out');
+                    cartBadge.style.display = 'none'; // Hide cart badge
+                    // Optional: Redirect to login page if needed
+                    window.location.href = 'login.html'; 
+                }
+            });
         });
-
-        // Get email parameter from URL
-        function getEmailFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('email') || '';
-        }
 
         // Load products from Firestore
         async function loadProducts() {
@@ -1294,7 +1294,10 @@
         // Update cart badge for authenticated user
         async function updateCartBadge() {
             const currentUser = firebase.auth().currentUser;
-            if (!currentUser) return;
+            if (!currentUser) {
+                cartBadge.style.display = 'none';
+                return;
+            }
 
             try {
                 const cartQuery = await db.collection('Cart')
@@ -1312,15 +1315,20 @@
                     .where('status', '==', 'Active')
                     .get();
 
-                const count = itemsSnapshot.size;
-                if (count > 0) {
-                    cartBadge.textContent = count;
+                // Calculate total items (summing quantities)
+                const totalItems = itemsSnapshot.docs.reduce((total, doc) => {
+                    return total + (doc.data().quantity || 1);
+                }, 0);
+
+                if (totalItems > 0) {
+                    cartBadge.textContent = totalItems > 99 ? '99+' : totalItems.toString();
                     cartBadge.style.display = 'block';
                 } else {
                     cartBadge.style.display = 'none';
                 }
             } catch (error) {
                 console.error('Error updating cart badge:', error);
+                cartBadge.style.display = 'none';
             }
         }
 
