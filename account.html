@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - PharmacOnline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Hide scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* Hide scrollbar for Firefox */
+        html {
+            scrollbar-width: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4a6bff 0%, #5dade2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 380px;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .header {
+            background-image: url('https://baserow-backend-production20240528124524339000000001.s3.amazonaws.com/user_files/4bJLh3RoN7DvPJR4DI574q40LpayOvsZ_dd6d357edfda94466bdbc259190977453d6f82e5722e42c4e74754edc7adfdf4.jpg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 80px;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 35px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        .back-btn::before {
+            content: '←';
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .page-title {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .page-title h1 {
+            color: #333;
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .page-title p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .profile-container {
+            padding: 30px;
+        }
+
+        .profile-avatar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2em;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .profile-info {
+            display: none;
+        }
+
+        .profile-info.loaded {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #4CAF50;
+            border-radius: 2px;
+            margin-right: 10px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-item.editable {
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+        }
+
+        .info-item.editable:hover {
+            border-color: #4CAF50;
+            background: #f0f8f0;
+        }
+
+        .info-item.editing {
+            border-color: #4CAF50;
+            background: white;
+        }
+
+        .info-label {
+            font-size: 0.85em;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1em;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .info-value.empty {
+            color: #999;
+            font-style: italic;
+        }
+
+        .edit-icon {
+            float: right;
+            color: #4CAF50;
+            font-size: 1.1em;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px 0;
+            border: none;
+            background: transparent;
+            font-size: 1em;
+            color: #333;
+            font-weight: 500;
+            outline: none;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        .edit-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        .logout-section {
+            border-top: 1px solid #e9ecef;
+            padding: 25px 30px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+        }
+
+        .error-message, .success-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                margin-top: 10px;
+                border-radius: 15px;
+            }
+            
+            .profile-container {
+                padding: 20px;
+            }
+            
+            .page-title {
+                padding: 15px;
+            }
+            
+            .page-title h1 {
+                font-size: 1.3em;
+            }
+            
+            .avatar {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8em;
+            }
+            
+            .logout-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"></button>
+        </div>
+
+        <div class="page-title">
+            <h1>My Account</h1>
+            <p>Manage your profile information</p>
+        </div>
+
+        <div class="profile-container">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <div class="loading-container" id="loadingContainer">
+                <div class="spinner"></div>
+                <p>Loading your profile...</p>
+            </div>
+
+            <div class="profile-info" id="profileInfo">
+                <div class="profile-avatar">
+                    <div class="avatar" id="userAvatar">U</div>
+                </div>
+
+                <div class="info-section">
+                    <h3 class="section-title">Personal Information</h3>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value" id="userName">-</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Email Address</div>
+                        <div class="info-value" id="userEmail">-</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Member Since</div>
+                        <div class="info-value" id="memberSince">-</div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3 class="section-title">Contact & Delivery</h3>
+                    
+                    <div class="info-item editable" onclick="editField('phone')">
+                        <div class="info-label">Phone Number</div>
+                        <div class="info-value" id="userPhone">Not provided</div>
+                        <div class="edit-icon">✏️</div>
+                    </div>
+
+                    <div class="info-item editable" onclick="editField('address')">
+                        <div class="info-label">Delivery Address</div>
+                        <div class="info-value" id="userAddress">Not provided</div>
+                        <div class="edit-icon">✏️</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="logout-section">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNMdcbXVMC_QUgVSmgFMXlW84DWQs9QZE",
+            authDomain: "pharmac-online.firebaseapp.com",
+            projectId: "pharmac-online",
+            storageBucket: "pharmac-online.appspot.com",
+            messagingSenderId: "968868548902",
+            appId: "1:968868548902:web:0607bd63857c7c538131e7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let editingField = null;
+
+        // Global functions
+        window.goBack = function() {
+            window.history.back();
+        };
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html'; // Redirect to login page
+            } catch (error) {
+                showError('Error signing out. Please try again.');
+            }
+        };
+
+        window.editField = function(fieldName) {
+            if (editingField) return; // Prevent multiple edits
+            
+            editingField = fieldName;
+            const item = document.getElementById(fieldName === 'phone' ? 'userPhone' : 'userAddress');
+            const container = item.parentElement;
+            const currentValue = fieldName === 'phone' ? 
+                (currentUser.phone || '') : 
+                (currentUser.delivery_address || '');
+
+            // Create edit interface
+            container.classList.add('editing');
+            container.onclick = null;
+            
+            container.innerHTML = `
+                <div class="info-label">${fieldName === 'phone' ? 'Phone Number' : 'Delivery Address'}</div>
+                <input type="${fieldName === 'phone' ? 'tel' : 'text'}" 
+                       class="input-field" 
+                       value="${currentValue}"
+                       placeholder="${fieldName === 'phone' ? 'Enter phone number' : 'Enter delivery address'}"
+                       maxlength="${fieldName === 'phone' ? '20' : '200'}"
+                       id="edit-${fieldName}">
+                <div class="edit-actions">
+                    <button class="btn btn-save" onclick="saveField('${fieldName}')">Save</button>
+                    <button class="btn btn-cancel" onclick="cancelEdit('${fieldName}')">Cancel</button>
+                </div>
+            `;
+            
+            document.getElementById(`edit-${fieldName}`).focus();
+        };
+
+        window.saveField = async function(fieldName) {
+            const input = document.getElementById(`edit-${fieldName}`);
+            const newValue = input.value.trim();
+            
+            try {
+                // Update in Firestore
+                const userRef = doc(db, 'Users', currentUser.uid);
+                const updateData = {};
+                updateData[fieldName === 'phone' ? 'phone' : 'delivery_address'] = newValue;
+                
+                await updateDoc(userRef, updateData);
+                
+                // Update local data
+                if (fieldName === 'phone') {
+                    currentUser.phone = newValue;
+                } else {
+                    currentUser.delivery_address = newValue;
+                }
+                
+                showSuccess('Information updated successfully!');
+                resetFieldDisplay(fieldName);
+                
+            } catch (error) {
+                showError('Failed to update information. Please try again.');
+                console.error('Error updating user data:', error);
+            }
+        };
+
+        window.cancelEdit = function(fieldName) {
+            resetFieldDisplay(fieldName);
+        };
+
+        function resetFieldDisplay(fieldName) {
+            editingField = null;
+            
+            // Find the container by looking for the editing class
+            const container = document.querySelector('.info-item.editing');
+            if (!container) return;
+            
+            const value = fieldName === 'phone' ? 
+                (currentUser.phone || 'Not provided') : 
+                (currentUser.delivery_address || 'Not provided');
+            
+            container.classList.remove('editing');
+            container.onclick = () => editField(fieldName);
+            
+            container.innerHTML = `
+                <div class="info-label">${fieldName === 'phone' ? 'Phone Number' : 'Delivery Address'}</div>
+                <div class="info-value ${!value || value === 'Not provided' ? 'empty' : ''}" id="${fieldName === 'phone' ? 'userPhone' : 'userAddress'}">${value}</div>
+                <div class="edit-icon">✏️</div>
+            `;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Unknown';
+            
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        async function loadUserData(user) {
+            try {
+                const userRef = doc(db, 'Users', user.uid);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    currentUser = { ...userData, uid: user.uid };
+                    
+                    // Update UI
+                    document.getElementById('userAvatar').textContent = userData.name ? userData.name.charAt(0).toUpperCase() : 'U';
+                    document.getElementById('userName').textContent = userData.name || 'Not provided';
+                    document.getElementById('userEmail').textContent = userData.email || 'Not provided';
+                    document.getElementById('memberSince').textContent = formatDate(userData.created_time);
+                    
+                    const phoneElement = document.getElementById('userPhone');
+                    const addressElement = document.getElementById('userAddress');
+                    
+                    if (userData.phone) {
+                        phoneElement.textContent = userData.phone;
+                        phoneElement.classList.remove('empty');
+                    } else {
+                        phoneElement.textContent = 'Not provided';
+                        phoneElement.classList.add('empty');
+                    }
+                    
+                    if (userData.delivery_address) {
+                        addressElement.textContent = userData.delivery_address;
+                        addressElement.classList.remove('empty');
+                    } else {
+                        addressElement.textContent = 'Not provided';
+                        addressElement.classList.add('empty');
+                    }
+                    
+                    // Show profile info
+                    document.getElementById('loadingContainer').style.display = 'none';
+                    document.getElementById('profileInfo').classList.add('loaded');
+                    
+                } else {
+                    showError('User profile not found.');
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showError('Failed to load profile data.');
+            }
+        }
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadUserData(user);
+            } else {
+                // Redirect to login if not authenticated
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
