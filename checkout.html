@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmacOnline - Checkout</title>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Hide scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* Hide scrollbar for Firefox */
+        html {
+            scrollbar-width: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4a6bff 0%, #5dade2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .checkout-content {
+            padding: 20px;
+        }
+
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f0f0f0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .order-item {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .order-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f5f5f5;
+            flex-shrink: 0;
+        }
+
+        .item-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 3px;
+            line-height: 1.3;
+        }
+
+        .item-quantity {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .item-price {
+            color: #4CAF50;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .summary-row.total {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .pay-now-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pay-now-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .pay-now-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2e7d32;
+            display: none;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-cart-icon {
+            font-size: 60px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-cart h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .continue-shopping-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .continue-shopping-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method:hover {
+            border-color: #4CAF50;
+        }
+
+        .payment-method.selected {
+            border-color: #4CAF50;
+            background: #f1f8e9;
+        }
+
+        .payment-method input[type="radio"] {
+            margin: 0;
+        }
+
+        .payment-method label {
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                border-radius: 15px;
+                max-width: 100%;
+            }
+            
+            .checkout-content {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            .item-image {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <h1>Checkout</h1>
+        </div>
+
+        <div class="checkout-content">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <div class="loading-container" id="loadingContainer">
+                <div class="loading-spinner"></div>
+                <p>Loading checkout...</p>
+            </div>
+
+            <div class="empty-cart" id="emptyCart" style="display: none;">
+                <div class="empty-cart-icon">🛒</div>
+                <h3>Your cart is empty</h3>
+                <p>Add some medications to get started</p>
+                <button class="continue-shopping-btn" onclick="continueShopping()">
+                    Continue Shopping
+                </button>
+            </div>
+
+            <div id="checkoutSections" style="display: none;">
+                <!-- Order Summary Section -->
+                <div class="section">
+                    <div class="section-title">
+                        📦 Order Summary
+                    </div>
+                    <div id="orderItems">
+                        <!-- Order items will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Delivery Information Section -->
+                <div class="section">
+                    <div class="section-title">
+                        📍 Delivery Information
+                    </div>
+                    <form id="deliveryForm">
+                        <div class="form-group">
+                            <label class="form-label" for="fullName">Full Name *</label>
+                            <input type="text" id="fullName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="email">Email Address *</label>
+                            <input type="email" id="email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="address">Delivery Address *</label>
+                            <textarea id="address" class="form-textarea" placeholder="Enter your full delivery address" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="notes">Special Instructions (Optional)</label>
+                            <textarea id="notes" class="form-textarea" placeholder="Any special delivery instructions..."></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Payment Method Section -->
+                <div class="section">
+                    <div class="section-title">
+                        💳 Payment Method
+                    </div>
+                    <div class="payment-methods">
+                        <div class="payment-method selected" onclick="selectPaymentMethod('card')">
+                            <input type="radio" name="paymentMethod" value="card" checked>
+                            <label>💳 Card</label>
+                        </div>
+                        <div class="payment-method" onclick="selectPaymentMethod('bank')">
+                            <input type="radio" name="paymentMethod" value="bank">
+                            <label>🏦 Bank</label>
+                        </div>
+                        <div class="payment-method" onclick="selectPaymentMethod('transfer')">
+                            <input type="radio" name="paymentMethod" value="transfer">
+                            <label>📱 Transfer</label>
+                        </div>
+                        <div class="payment-method" onclick="selectPaymentMethod('ussd')">
+                            <input type="radio" name="paymentMethod" value="ussd">
+                            <label>📞 USSD</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Total Section -->
+                <div class="section">
+                    <div class="section-title">
+                        💰 Order Total
+                    </div>
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">₦0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery Fee:</span>
+                        <span id="deliveryFee">₦500</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total Amount:</span>
+                        <span id="total">₦0</span>
+                    </div>
+                    <button class="pay-now-btn" id="payNowBtn" onclick="processPayment()">
+                        Pay Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, collection, query, where, getDocs, addDoc, updateDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNMdcbXVMC_QUgVSmgFMXlW84DWQs9QZE",
+            authDomain: "pharmac-online.firebaseapp.com",
+            projectId: "pharmac-online",
+            storageBucket: "pharmac-online.appspot.com",
+            messagingSenderId: "968868548902",
+            appId: "1:968868548902:web:0607bd63857c7c538131e7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Paystack configuration
+        const PAYSTACK_PUBLIC_KEY = 'pk_test_35d3f3c9d825eb202a0dfa63c16dda1fa70954b6';
+
+        let currentUser = null;
+        let cartItems = [];
+        const deliveryFee = 500;
+        let currentCartId = null;
+        let selectedPaymentMethod = 'card';
+
+        // Global functions
+        window.goBack = function() {
+            window.location.href = 'cart.html';
+        };
+
+        window.continueShopping = function() {
+            window.location.href = 'homepage.html';
+        };
+
+        window.selectPaymentMethod = function(method) {
+            selectedPaymentMethod = method;
+            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+            document.querySelector(`input[value="${method}"]`).closest('.payment-method').classList.add('selected');
+        };
+
+        window.processPayment = function() {
+            if (!validateForm()) return;
+            
+            const amount = calculateTotal() * 100; // Paystack expects amount in kobo
+            const email = document.getElementById('email').value;
+            const fullName = document.getElementById('fullName').value;
+            
+            const handler = PaystackPop.setup({
+                key: PAYSTACK_PUBLIC_KEY,
+                email: email,
+                amount: amount,
+                currency: 'NGN',
+                ref: 'PO_' + Math.floor((Math.random() * 1000000000) + 1),
+                metadata: {
+                    custom_fields: [
+                        {
+                            display_name: "Full Name",
+                            variable_name: "full_name",
+                            value: fullName
+                        },
+                        {
+                            display_name: "Phone",
+                            variable_name: "phone",
+                            value: document.getElementById('phone').value
+                        },
+                        {
+                            display_name: "Address",
+                            variable_name: "address",
+                            value: document.getElementById('address').value
+                        }
+                    ]
+                },
+                channels: getPaymentChannels(),
+                callback: function(response){
+                    handlePaymentSuccess(response);
+                },
+                onClose: function(){
+                    showError('Payment was cancelled');
+                }
+            });
+            
+            handler.openIframe();
+        };
+
+        function getPaymentChannels() {
+            const channelMap = {
+                'card': ['card'],
+                'bank': ['bank'],
+                'transfer': ['bank_transfer'],
+                'ussd': ['ussd']
+            };
+            return channelMap[selectedPaymentMethod] || ['card', 'bank', 'ussd', 'bank_transfer'];
+        }
+
+        function validateForm() {
+            const requiredFields = ['fullName', 'email', 'phone', 'address'];
+            let isValid = true;
+
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#c62828';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '#e0e0e0';
+                }
+            });
+
+            if (!isValid) {
+                showError('Please fill in all required fields');
+            }
+
+            return isValid;
+        }
+
+        async function handlePaymentSuccess(response) {
+            try {
+                showSuccess('Payment successful! Processing your order...');
+                
+                // Create order in Firestore
+                const orderData = {
+                    user_id: currentUser.uid,
+                    cart_id: currentCartId,
+                    payment_reference: response.reference,
+                    payment_status: 'completed',
+                    order_status: 'pending',
+                    customer_info: {
+                        full_name: document.getElementById('fullName').value,
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value,
+                        address: document.getElementById('address').value,
+                        notes: document.getElementById('notes').value
+                    },
+                    items: cartItems,
+                    subtotal: calculateSubtotal(),
+                    delivery_fee: deliveryFee,
+                    total_amount: calculateTotal(),
+                    payment_method: selectedPaymentMethod,
+                    created_at: serverTimestamp()
+                };
+
+                const orderRef = await addDoc(collection(db, 'Orders'), orderData);
+                
+                // Update cart status to completed
+                if (currentCartId) {
+                    const cartRef = doc(db, 'Cart', currentCartId);
+                    await updateDoc(cartRef, {
+                        status: 'completed',
+                        completed_at: serverTimestamp()
+                    });
+                }
+
+                showSuccess('Order placed successfully! Redirecting...');
+                
+                setTimeout(() => {
+                    window.location.href = `order-confirmation.html?orderId=${orderRef.id}`;
+                }, 2000);
+
+            } catch (error) {
+                console.error('Error processing order:', error);
+                showError('Order processing failed. Please contact support.');
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function formatPrice(price) {
+            return new Intl.NumberFormat('en-NG', {
+                style: 'currency',
+                currency: 'NGN',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(price);
+        }
+
+        function showLoading() {
+            document.getElementById('loadingContainer').style.display = 'flex';
+            document.getElementById('emptyCart').style.display = 'none';
+            document.getElementById('checkoutSections').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingContainer').style.display = 'none';
+        }
+
+        function showEmptyCart() {
+            hideLoading();
+            document.getElementById('emptyCart').style.display = 'block';
+            document.getElementById('checkoutSections').style.display = 'none';
+        }
+
+        function showCheckout() {
+            hideLoading();
+            document.getElementById('emptyCart').style.display = 'none';
+            document.getElementById('checkoutSections').style.display = 'block';
+        }
+
+        function renderOrderItems() {
+            const orderItemsContainer = document.getElementById('orderItems');
+            
+            if (cartItems.length === 0) {
+                showEmptyCart();
+                return;
+            }
+
+            orderItemsContainer.innerHTML = cartItems.map(item => `
+                <div class="order-item">
+                    <img src="${item.image_url || 'https://via.placeholder.com/50x50?text=Med'}" 
+                         alt="${item.product_name}" 
+                         class="item-image"
+                         onerror="this.src='https://via.placeholder.com/50x50?text=Med'">
+                    <div class="item-details">
+                        <div class="item-name">${item.product_name}</div>
+                        <div class="item-quantity">Qty: ${item.quantity}</div>
+                        <div class="item-price">${formatPrice(item.price_per_unit * item.quantity)}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateSummary();
+            showCheckout();
+        }
+
+        function calculateSubtotal() {
+            return cartItems.reduce((sum, item) => sum + (item.price_per_unit * item.quantity), 0);
+        }
+
+        function calculateTotal() {
+            return calculateSubtotal() + deliveryFee;
+        }
+
+        function updateSummary() {
+            const subtotal = calculateSubtotal();
+            const total = calculateTotal();
+
+            document.getElementById('subtotal').textContent = formatPrice(subtotal);
+            document.getElementById('deliveryFee').textContent = formatPrice(deliveryFee);
+            document.getElementById('total').textContent = formatPrice(total);
+        }
+
+        // Listen for cart changes (same logic as cart page)
+        async function listenToCartChanges(userId) {
+            try {
+                console.log("[CHECKOUT] Initializing checkout for user:", userId);
+                
+                const cartsQuery = query(
+                    collection(db, 'Cart'),
+                    where('owner_uid', '==', userId)
+                );
+
+                const querySnapshot = await getDocs(cartsQuery);
+                
+                if (querySnapshot.empty) {
+                    console.log("[CHECKOUT] No cart found for user");
+                    showEmptyCart();
+                    return;
+                }
+
+                const cartDoc = querySnapshot.docs[0];
+                console.log("[CHECKOUT] Cart document:", cartDoc.id, cartDoc.data());
+
+                currentCartId = cartDoc.id;
+                console.log("[CHECKOUT] Stored cart ID globally:", currentCartId);
+
+                const itemsRef = collection(db, 'Cart', currentCartId, 'Items');
+
+                return onSnapshot(
+                    query(itemsRef, where('status', '==', 'Active')),
+                    (snapshot) => {
+                        const items = [];
+                        snapshot.forEach((doc) => {
+                            items.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
+                        });
+                        cartItems = items;
+                        renderOrderItems();
+                    },
+                    (error) => {
+                        console.error("[CHECKOUT] Listener error:", error);
+                        showError("Failed to load cart items");
+                    }
+                );
+
+            } catch (error) {
+                console.error("[CHECKOUT] Setup failed:", error);
+                showError("Failed to load checkout");
+            }
+        }
+
+        // Populate user info when available
+        function populateUserInfo(user) {
+            if (user.email) {
+                document.getElementById('email').value = user.email;
+            }
+            if (user.displayName) {
+                document.getElementById('fullName').value = user.displayName;
+            }
+        }
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            console.log('[DEBUG] Auth state changed:', {
+                userExists: !!user,
+                uid: user?.uid,
+                email: user?.email
+            });
+            
+            if (user) {
+                currentUser = user;
+                populateUserInfo(user);
+                console.log('[DEBUG] User authenticated, starting checkout setup');
+                listenToCartChanges(user.uid).catch((error) => {
+                    console.error('[ERROR] Checkout setup failed:', error);
+                });
+            } else {
+                console.log('[DEBUG] No user, redirecting to login');
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Initialize page
+        showLoading();
+    </script>
+</body>
+</html>
