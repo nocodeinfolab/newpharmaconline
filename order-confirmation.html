@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmacOnline - Order Confirmation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Hide scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* Hide scrollbar for Firefox */
+        html {
+            scrollbar-width: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4a6bff 0%, #5dade2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .confirmation-content {
+            padding: 20px;
+        }
+
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-banner {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .success-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .success-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .success-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f0f0f0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .order-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .order-info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .order-info-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .order-info-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-shipped {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-delivered {
+            background: #e2f4e8;
+            color: #0f5132;
+        }
+
+        .payment-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: #e2f4e8;
+            color: #0f5132;
+        }
+
+        .order-item {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .order-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f5f5f5;
+            flex-shrink: 0;
+        }
+
+        .item-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 3px;
+            line-height: 1.3;
+        }
+
+        .item-quantity {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .item-price {
+            color: #4CAF50;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .summary-row.total {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .customer-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .customer-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .customer-info p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .customer-info p:last-child {
+            margin-bottom: 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+            text-align: center;
+            display: none;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .tracking-timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .timeline-icon.completed {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .timeline-icon.current {
+            background: #2196F3;
+            color: white;
+        }
+
+        .timeline-icon.pending {
+            background: #f0f0f0;
+            color: #999;
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding-top: 8px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .timeline-date {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 40px;
+            width: 2px;
+            height: calc(100% + 0px);
+            background: #e0e0e0;
+            z-index: 1;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                border-radius: 15px;
+                max-width: 100%;
+            }
+            
+            .confirmation-content {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            .item-image {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .success-banner {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Order Confirmed</h1>
+        </div>
+
+        <div class="confirmation-content">
+            <div class="loading-container" id="loadingContainer">
+                <div class="loading-spinner"></div>
+                <p>Loading order details...</p>
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                <span class="error-icon">❌</span>
+                <h3>Order Not Found</h3>
+                <p>We couldn't find your order. Please check your order ID or contact support.</p>
+            </div>
+
+            <div id="orderContent" style="display: none;">
+                <div class="success-banner">
+                    <span class="success-icon">🎉</span>
+                    <div class="success-title">Order Confirmed!</div>
+                    <div class="success-subtitle">Thank you for your purchase</div>
+                </div>
+
+                <!-- Order Information Section -->
+                <div class="section">
+                    <div class="section-title">
+                        📋 Order Information
+                    </div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">Order ID:</span>
+                        <span class="order-info-value" id="orderNumber">#PO-000000</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">Order Date:</span>
+                        <span class="order-info-value" id="orderDate">-</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">Payment Method:</span>
+                        <span class="order-info-value" id="paymentMethod">-</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">Payment Status:</span>
+                        <span class="payment-status" id="paymentStatus">Completed</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="order-info-label">Order Status:</span>
+                        <span class="order-status status-pending" id="orderStatus">Pending</span>
+                    </div>
+                </div>
+
+                <!-- Order Items Section -->
+                <div class="section">
+                    <div class="section-title">
+                        📦 Items Ordered
+                    </div>
+                    <div id="orderItems">
+                        <!-- Order items will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Delivery Information Section -->
+                <div class="section">
+                    <div class="section-title">
+                        🚚 Delivery Information
+                    </div>
+                    <div class="customer-info">
+                        <h4>Delivery Address</h4>
+                        <div id="customerDetails">
+                            <!-- Customer details will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary Section -->
+                <div class="section">
+                    <div class="section-title">
+                        💰 Order Summary
+                    </div>
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">₦0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery Fee:</span>
+                        <span id="deliveryFee">₦0</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total Paid:</span>
+                        <span id="total">₦0</span>
+                    </div>
+                </div>
+
+                <!-- Order Tracking Section -->
+                <div class="section">
+                    <div class="section-title">
+                        📍 Order Tracking
+                    </div>
+                    <div class="tracking-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-icon completed">✓</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Order Placed</div>
+                                <div class="timeline-date" id="orderPlacedDate">-</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon current" id="processingIcon">⏳</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Order Processing</div>
+                                <div class="timeline-date">We're preparing your items</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon pending" id="shippedIcon">🚚</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Shipped</div>
+                                <div class="timeline-date">On the way to you</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon pending" id="deliveredIcon">📦</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Delivered</div>
+                                <div class="timeline-date">Arrived at your door</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="section">
+                    <div class="action-buttons">
+                        <a href="homepage.html" class="btn btn-primary">Continue Shopping</a>
+                        <button class="btn btn-secondary" onclick="window.print()">📄 Print Receipt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNMdcbXVMC_QUgVSmgFMXlW84DWQs9QZE",
+            authDomain: "pharmac-online.firebaseapp.com",
+            projectId: "pharmac-online",
+            storageBucket: "pharmac-online.appspot.com",
+            messagingSenderId: "968868548902",
+            appId: "1:968868548902:web:0607bd63857c7c538131e7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let orderData = null;
+
+        // Get order ID from URL parameter
+        function getOrderIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('orderId');
+        }
+
+        // Format price function
+        function formatPrice(price) {
+            return new Intl.NumberFormat('en-NG', {
+                style: 'currency',
+                currency: 'NGN',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(price);
+        }
+
+        // Format date function
+        function formatDate(timestamp) {
+            if (!timestamp) return '-';
+            
+            let date;
+            if (timestamp.toDate) {
+                // Firestore Timestamp
+                date = timestamp.toDate();
+            } else if (timestamp instanceof Date) {
+                date = timestamp;
+            } else {
+                date = new Date(timestamp);
+            }
+            
+            return date.toLocaleString('en-NG', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Show loading state
+        function showLoading() {
+            document.getElementById('loadingContainer').style.display = 'flex';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('orderContent').style.display = 'none';
+        }
+
+        // Show error state
+        function showError() {
+            document.getElementById('loadingContainer').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('orderContent').style.display = 'none';
+        }
+
+        // Show order content
+        function showOrderContent() {
+            document.getElementById('loadingContainer').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('orderContent').style.display = 'block';
+        }
+
+        // Render order items
+        function renderOrderItems() {
+            const orderItemsContainer = document.getElementById('orderItems');
+            
+            if (!orderData.items || orderData.items.length === 0) {
+                orderItemsContainer.innerHTML = '<p>No items found</p>';
+                return;
+            }
+
+            orderItemsContainer.innerHTML = orderData.items.map(item => `
+                <div class="order-item">
+                    <img src="${item.image_url || 'https://via.placeholder.com/50x50?text=Med'}" 
+                         alt="${item.product_name}" 
+                         class="item-image"
+                         onerror="this.src='https://via.placeholder.com/50x50?text=Med'">
+                    <div class="item-details">
+                        <div class="item-name">${item.product_name}</div>
+                        <div class="item-quantity">Qty: ${item.quantity}</div>
+                        <div class="item-price">${formatPrice(item.price_per_unit * item.quantity)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render customer details
+        function renderCustomerDetails() {
+            const customerDetailsContainer = document.getElementById('customerDetails');
+            const customer = orderData.customer_info;
+            
+            if (!customer) {
+                customerDetailsContainer.innerHTML = '<p>No customer information available</p>';
+                return;
+            }
+
+            customerDetailsContainer.innerHTML = `
+                <p><strong>${customer.full_name}</strong></p>
+                <p>📧 ${customer.email}</p>
+                <p>📱 ${customer.phone}</p>
+                <p>📍 ${customer.address}</p>
+                ${customer.notes ? `<p><strong>Special Instructions:</strong> ${customer.notes}</p>` : ''}
+            `;
+        }
+
+        // Update order tracking based on status
+        function updateOrderTracking() {
+            const status = orderData.order_status.toLowerCase();
+            const icons = {
+                processing: document.getElementById('processingIcon'),
+                shipped: document.getElementById('shippedIcon'),
+                delivered: document.getElementById('deliveredIcon')
+            };
+
+            // Reset all to pending
+            Object.values(icons).forEach(icon => {
+                icon.className = 'timeline-icon pending';
+                icon.textContent = getIconForStatus('pending');
+            });
+
+            // Update based on current status
+            switch (status) {
+                case 'processing':
+                    icons.processing.className = 'timeline-icon current';
+                    icons.processing.textContent = '⏳';
+                    break;
+                case 'shipped':
+                    icons.processing.className = 'timeline-icon completed';
+                    icons.processing.textContent = '✓';
+                    icons.shipped.className = 'timeline-icon current';
+                    icons.shipped.textContent = '🚚';
+                    break;
+                case 'delivered':
+                    icons.processing.className = 'timeline-icon completed';
+                    icons.processing.textContent = '✓';
+                    icons.shipped.className = 'timeline-icon completed';
+                    icons.shipped.textContent = '✓';
+                    icons.delivered.className = 'timeline-icon completed';
+                    icons.delivered.textContent = '✓';
+                    break;
+            }
+        }
+
+        function getIconForStatus(status) {
+            const statusIcons = {
+                pending: '⏳',
+                processing: '⏳',
+                shipped: '🚚',
+                delivered: '📦'
+            };
+            return statusIcons[status] || '⏳';
+        }
+
+        // Capitalize first letter
+        function capitalize(str) {
+            if (!str) return '';
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // Populate order information
+        function populateOrderInfo() {
+            // Order basic info
+            document.getElementById('orderNumber').textContent = `#PO-${orderData.payment_reference || 'N/A'}`;
+            document.getElementById('orderDate').textContent = formatDate(orderData.created_at);
+            document.getElementById('paymentMethod').textContent = capitalize(orderData.payment_method || 'N/A');
+            document.getElementById('paymentStatus').textContent = capitalize(orderData.payment_status || 'completed');
+            
+            // Order status
+            const orderStatusElement = document.getElementById('orderStatus');
+            const status = orderData.order_status || 'pending';
+            orderStatusElement.textContent = capitalize(status);
+            orderStatusElement.className = `order-status status-${status.toLowerCase()}`;
+            
+            // Order dates
+            document.getElementById('orderPlacedDate').textContent = formatDate(orderData.created_at);
+            
+            // Order summary
+            document.getElementById('subtotal').textContent = formatPrice(orderData.subtotal || 0);
+            document.getElementById('deliveryFee').textContent = formatPrice(orderData.delivery_fee || 0);
+            document.getElementById('total').textContent = formatPrice(orderData.total_amount || 0);
+            
+            // Render components
+            renderOrderItems();
+            renderCustomerDetails();
+            updateOrderTracking();
+        }
+
+        // Fetch order details
+        async function fetchOrderDetails(orderId) {
+            try {
+                console.log('[DEBUG] Fetching order:', orderId);
+                showLoading();
+                
+                const orderRef = doc(db, 'Orders', orderId);
+                const orderSnap = await getDoc(orderRef);
+                
+                if (!orderSnap.exists()) {
+                    console.log('[DEBUG] Order not found');
+                    showError();
+                    return;
+                }
+                
+                orderData = { id: orderSnap.id, ...orderSnap.data() };
+                console.log('[DEBUG] Order data:', orderData);
+                
+                // Verify order belongs to current user
+                if (currentUser && orderData.user_id !== currentUser.uid) {
+                    console.log('[DEBUG] Order does not belong to current user');
+                    showError();
+                    return;
+                }
+                
+                populateOrderInfo();
+                showOrderContent();
+                
+            } catch (error) {
+                console.error('[ERROR] Failed to fetch order:', error);
+                showError();
+            }
+        }
+
+        // Initialize page
+        function initializePage() {
+            const orderId = getOrderIdFromUrl();
+            
+            if (!orderId) {
+                console.log('[DEBUG] No order ID in URL');
+                showError();
+                return;
+            }
+            
+            console.log('[DEBUG] Order ID from URL:', orderId);
+            
+            // If user is already authenticated, fetch order immediately
+            if (currentUser) {
+                fetchOrderDetails(orderId);
+            } else {
+                // Wait for auth state to be determined
+                showLoading();
+            }
+        }
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            console.log('[DEBUG] Auth state changed:', {
+                userExists: !!user,
+                uid: user?.uid,
+                email: user?.email
+            });
+            
+            currentUser = user;
+            
+            const orderId = getOrderIdFromUrl();
+            if (orderId) {
+                fetchOrderDetails(orderId);
+            } else {
+                showError();
+            }
+        });
+
+        // Initialize when page loads
+        initializePage();
+    </script>
+</body>
+</html>
