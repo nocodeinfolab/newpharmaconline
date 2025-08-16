@@ -642,12 +642,42 @@
                 const orderRef = await addDoc(collection(db, 'Orders'), orderData);
                 
                 // Update cart status to completed
+                // Update all cart items to 'completed' status instead of the cart itself
                 if (currentCartId) {
-                    const cartRef = doc(db, 'Cart', currentCartId);
-                    await updateDoc(cartRef, {
-                        status: 'completed',
-                        completed_at: serverTimestamp()
-                    });
+                    try {
+                        // Get reference to the cart items subcollection
+                        const itemsRef = collection(db, 'Cart', currentCartId, 'Items');
+                        
+                        // Get all active items in the cart
+                        const querySnapshot = await getDocs(
+                            query(itemsRef, where('status', '==', 'Active'))
+                        );
+
+                        // Create an array of update promises
+                        const updatePromises = [];
+                        querySnapshot.forEach((itemDoc) => {
+                            updatePromises.push(
+                                updateDoc(itemDoc.ref, {
+                                    status: 'completed',
+                                    completed_at: serverTimestamp()
+                                })
+                            );
+                        });
+
+                        // Execute all updates in parallel
+                        await Promise.all(updatePromises);
+                        console.log(`Updated ${updatePromises.length} items to completed status`);
+                        
+                        // Optional: Update cart's timestamp without changing its status
+                        const cartRef = doc(db, 'Cart', currentCartId);
+                        await updateDoc(cartRef, {
+                            updated_at: serverTimestamp()
+                        });
+                        
+                    } catch (error) {
+                        console.error('Error updating cart items:', error);
+                        throw error; // Re-throw to be caught by the outer try-catch
+                    }
                 }
 
                 showSuccess('Order placed successfully! Redirecting...');
