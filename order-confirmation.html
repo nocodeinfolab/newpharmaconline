@@ -782,7 +782,20 @@
 
         // Show payment verification section
         function showPaymentVerification() {
-            document.getElementById('paymentVerificationSection').style.display = 'block';
+            const verificationSection = document.getElementById('paymentVerificationSection');
+            verificationSection.style.display = 'block';
+            
+            // Update verification message based on current status
+            const paymentStatus = orderData.payment_status?.toLowerCase();
+            const messageElement = verificationSection.querySelector('.verification-message');
+            
+            if (paymentStatus === 'completed' && !orderData.paystack_data) {
+                messageElement.textContent = 'Your payment status shows as completed, but verification is incomplete. Please verify to ensure your order is processed correctly.';
+            } else if (paymentStatus === 'failed') {
+                messageElement.textContent = 'Your payment verification failed. Please try again or contact support if the issue persists.';
+            } else {
+                messageElement.textContent = 'Your payment needs to be verified. Click the button below to verify your payment status.';
+            }
         }
 
         // Hide payment verification section
@@ -956,17 +969,42 @@
             const paymentStatus = orderData.payment_status?.toLowerCase();
             const orderStatus = orderData.order_status?.toLowerCase();
             const paymentReference = orderData.payment_reference;
+            const hasPaystackData = orderData.paystack_data;
 
-            // Show verification if payment is pending and we have a payment reference
-            if (paymentReference && (paymentStatus === 'pending' || paymentStatus === 'failed') && orderStatus === 'pending') {
+            console.log('[DEBUG] Payment verification check:', {
+                paymentStatus,
+                orderStatus,
+                paymentReference,
+                hasPaystackData: !!hasPaystackData
+            });
+
+            // Show verification if:
+            // 1. We have a payment reference AND
+            // 2. Payment status is pending/failed OR (payment is completed but no paystack verification data exists)
+            // 3. Order status is still pending
+            const needsVerification = paymentReference && 
+                ((paymentStatus === 'pending' || paymentStatus === 'failed') || 
+                 (paymentStatus === 'completed' && !hasPaystackData)) && 
+                orderStatus === 'pending';
+
+            if (needsVerification) {
+                console.log('[DEBUG] Showing payment verification section');
                 showPaymentVerification();
             } else {
+                console.log('[DEBUG] Hiding payment verification section');
                 hidePaymentVerification();
             }
         }
 
         // Populate order information
         function populateOrderInfo() {
+            console.log('[DEBUG] Populating order info:', {
+                payment_status: orderData.payment_status,
+                order_status: orderData.order_status,
+                payment_reference: orderData.payment_reference,
+                has_paystack_data: !!orderData.paystack_data
+            });
+
             // Order basic info
             document.getElementById('orderNumber').textContent = `#PO-${orderData.payment_reference || orderData.id?.substring(0, 8) || 'N/A'}`;
             document.getElementById('orderDate').textContent = formatDate(orderData.created_at);
