@@ -204,8 +204,21 @@
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
+        }
+
+        .payment-completed {
             background: #e2f4e8;
             color: #0f5132;
+        }
+
+        .payment-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .payment-failed {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .order-item {
@@ -339,6 +352,24 @@
             border-color: #adb5bd;
         }
 
+        .btn-verify {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-verify:disabled {
+            background: #e0e0e0;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .error-message {
             background: #ffebee;
             color: #c62828;
@@ -354,6 +385,46 @@
             font-size: 48px;
             margin-bottom: 15px;
             display: block;
+        }
+
+        .payment-verification-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .verification-message {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .verification-status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .verification-success {
+            background: #e2f4e8;
+            color: #0f5132;
+            border: 1px solid #c3e6cb;
+        }
+
+        .verification-failed {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .verification-loading {
+            background: #cce5ff;
+            color: #004085;
+            border: 1px solid #b3d4fc;
         }
 
         .tracking-timeline {
@@ -465,19 +536,19 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>✅ Order Confirmed</h1>
+            <h1>✅ Order Confirmation</h1>
         </div>
 
         <div class="confirmation-content">
             <div class="loading-container" id="loadingContainer">
                 <div class="loading-spinner"></div>
-                <p>Loading order details...</p>
+                <p id="loadingText">Loading order details...</p>
             </div>
 
             <div class="error-message" id="errorMessage">
                 <span class="error-icon">❌</span>
-                <h3>Order Not Found</h3>
-                <p>We couldn't find your order. Please check your order ID or contact support.</p>
+                <h3 id="errorTitle">Order Not Found</h3>
+                <p id="errorText">We couldn't find your order. Please check your order ID or contact support.</p>
             </div>
 
             <div id="orderContent" style="display: none;">
@@ -485,6 +556,17 @@
                     <span class="success-icon">🎉</span>
                     <div class="success-title">Order Confirmed!</div>
                     <div class="success-subtitle">Thank you for your purchase</div>
+                </div>
+
+                <!-- Payment Verification Section -->
+                <div class="payment-verification-section" id="paymentVerificationSection" style="display: none;">
+                    <div class="verification-message">
+                        Your payment needs to be verified. Click the button below to verify your payment status.
+                    </div>
+                    <div class="verification-status" id="verificationStatus" style="display: none;"></div>
+                    <button class="btn btn-verify" id="verifyPaymentBtn" onclick="verifyPayment()">
+                        Verify Payment
+                    </button>
                 </div>
 
                 <!-- Order Information Section -->
@@ -501,12 +583,16 @@
                         <span class="order-info-value" id="orderDate">-</span>
                     </div>
                     <div class="order-info-row">
+                        <span class="order-info-label">Payment Reference:</span>
+                        <span class="order-info-value" id="paymentReference">-</span>
+                    </div>
+                    <div class="order-info-row">
                         <span class="order-info-label">Payment Method:</span>
                         <span class="order-info-value" id="paymentMethod">-</span>
                     </div>
                     <div class="order-info-row">
                         <span class="order-info-label">Payment Status:</span>
-                        <span class="payment-status" id="paymentStatus">Completed</span>
+                        <span class="payment-status" id="paymentStatus">Pending</span>
                     </div>
                     <div class="order-info-row">
                         <span class="order-info-label">Order Status:</span>
@@ -625,6 +711,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Backend API URL
+        const BACKEND_API_URL = 'https://pharmaconline-payment-worker.stevechikeabia.workers.dev';
+
         let currentUser = null;
         let orderData = null;
 
@@ -668,16 +757,19 @@
         }
 
         // Show loading state
-        function showLoading() {
+        function showLoading(text = 'Loading order details...') {
             document.getElementById('loadingContainer').style.display = 'flex';
+            document.getElementById('loadingText').textContent = text;
             document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('orderContent').style.display = 'none';
         }
 
         // Show error state
-        function showError() {
+        function showError(title = 'Order Not Found', message = 'We couldn\'t find your order. Please check your order ID or contact support.') {
             document.getElementById('loadingContainer').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorTitle').textContent = title;
+            document.getElementById('errorText').textContent = message;
             document.getElementById('orderContent').style.display = 'none';
         }
 
@@ -687,6 +779,72 @@
             document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('orderContent').style.display = 'block';
         }
+
+        // Show payment verification section
+        function showPaymentVerification() {
+            document.getElementById('paymentVerificationSection').style.display = 'block';
+        }
+
+        // Hide payment verification section
+        function hidePaymentVerification() {
+            document.getElementById('paymentVerificationSection').style.display = 'none';
+        }
+
+        // Update verification status
+        function updateVerificationStatus(status, message, isSuccess) {
+            const statusElement = document.getElementById('verificationStatus');
+            statusElement.style.display = 'block';
+            statusElement.textContent = message;
+            statusElement.className = 'verification-status ' + 
+                (status === 'loading' ? 'verification-loading' : 
+                 isSuccess ? 'verification-success' : 'verification-failed');
+        }
+
+        // Verify payment with backend
+        window.verifyPayment = async function() {
+            const verifyBtn = document.getElementById('verifyPaymentBtn');
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = 'Verifying...';
+            
+            updateVerificationStatus('loading', 'Verifying payment with backend...', false);
+
+            try {
+                const response = await fetch(`${BACKEND_API_URL}/verify-payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        reference: orderData.payment_reference,
+                        orderId: orderData.id
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.verified && result.status === 'success') {
+                    updateVerificationStatus('success', 'Payment verified successfully! Your order is now being processed.', true);
+                    
+                    // Refresh order data to get updated status
+                    setTimeout(async () => {
+                        await fetchOrderDetails(orderData.id, false);
+                        hidePaymentVerification();
+                    }, 2000);
+                } else {
+                    updateVerificationStatus('failed', 
+                        result.message || 'Payment verification failed. Please try again or contact support.', 
+                        false);
+                }
+            } catch (error) {
+                console.error('Payment verification error:', error);
+                updateVerificationStatus('failed', 
+                    'Failed to connect to verification service. Please try again.', 
+                    false);
+            } finally {
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = 'Verify Payment';
+            }
+        };
 
         // Render order items
         function renderOrderItems() {
@@ -785,13 +943,38 @@
             return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
+        // Update payment status display
+        function updatePaymentStatusDisplay() {
+            const paymentStatusElement = document.getElementById('paymentStatus');
+            const status = orderData.payment_status || 'pending';
+            paymentStatusElement.textContent = capitalize(status);
+            paymentStatusElement.className = `payment-status payment-${status.toLowerCase()}`;
+        }
+
+        // Check if payment verification is needed
+        function checkPaymentVerification() {
+            const paymentStatus = orderData.payment_status?.toLowerCase();
+            const orderStatus = orderData.order_status?.toLowerCase();
+            const paymentReference = orderData.payment_reference;
+
+            // Show verification if payment is pending and we have a payment reference
+            if (paymentReference && (paymentStatus === 'pending' || paymentStatus === 'failed') && orderStatus === 'pending') {
+                showPaymentVerification();
+            } else {
+                hidePaymentVerification();
+            }
+        }
+
         // Populate order information
         function populateOrderInfo() {
             // Order basic info
-            document.getElementById('orderNumber').textContent = `#PO-${orderData.payment_reference || 'N/A'}`;
+            document.getElementById('orderNumber').textContent = `#PO-${orderData.payment_reference || orderData.id?.substring(0, 8) || 'N/A'}`;
             document.getElementById('orderDate').textContent = formatDate(orderData.created_at);
-            document.getElementById('paymentMethod').textContent = capitalize(orderData.payment_method || 'N/A');
-            document.getElementById('paymentStatus').textContent = capitalize(orderData.payment_status || 'completed');
+            document.getElementById('paymentReference').textContent = orderData.payment_reference || 'N/A';
+            document.getElementById('paymentMethod').textContent = capitalize(orderData.payment_method || 'Card');
+            
+            // Update payment status
+            updatePaymentStatusDisplay();
             
             // Order status
             const orderStatusElement = document.getElementById('orderStatus');
@@ -811,13 +994,16 @@
             renderOrderItems();
             renderCustomerDetails();
             updateOrderTracking();
+            checkPaymentVerification();
         }
 
         // Fetch order details
-        async function fetchOrderDetails(orderId) {
+        async function fetchOrderDetails(orderId, showLoadingState = true) {
             try {
                 console.log('[DEBUG] Fetching order:', orderId);
-                showLoading();
+                if (showLoadingState) {
+                    showLoading();
+                }
                 
                 const orderRef = doc(db, 'Orders', orderId);
                 const orderSnap = await getDoc(orderRef);
@@ -831,10 +1017,10 @@
                 orderData = { id: orderSnap.id, ...orderSnap.data() };
                 console.log('[DEBUG] Order data:', orderData);
                 
-                // Verify order belongs to current user
+                // Verify order belongs to current user (if authenticated)
                 if (currentUser && orderData.user_id !== currentUser.uid) {
                     console.log('[DEBUG] Order does not belong to current user');
-                    showError();
+                    showError('Access Denied', 'You do not have permission to view this order.');
                     return;
                 }
                 
@@ -843,7 +1029,62 @@
                 
             } catch (error) {
                 console.error('[ERROR] Failed to fetch order:', error);
-                showError();
+                showError('Loading Error', 'Failed to load order details. Please try refreshing the page.');
+            }
+        }
+
+        // Auto-verify payment on page load if coming from payment
+        async function autoVerifyPayment() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const shouldVerify = urlParams.get('verify');
+            const paymentReference = urlParams.get('reference');
+            
+            if (shouldVerify === 'true' && paymentReference && orderData) {
+                console.log('[DEBUG] Auto-verifying payment:', paymentReference);
+                showLoading('Verifying your payment...');
+                
+                try {
+                    const response = await fetch(`${BACKEND_API_URL}/verify-payment`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            reference: paymentReference,
+                            orderId: orderData.id
+                        })
+                    });
+
+                    const result = await response.json();
+                    console.log('[DEBUG] Auto-verification result:', result);
+
+                    if (result.verified && result.status === 'success') {
+                        // Refresh order data to get updated status
+                        await fetchOrderDetails(orderData.id, false);
+                        
+                        // Show success message briefly
+                        updateVerificationStatus('success', 
+                            'Payment verified successfully! Your order is being processed.', 
+                            true);
+                        
+                        setTimeout(() => {
+                            hidePaymentVerification();
+                        }, 3000);
+                    } else {
+                        showOrderContent();
+                        showPaymentVerification();
+                        updateVerificationStatus('failed', 
+                            'Payment verification failed. Please try manual verification.', 
+                            false);
+                    }
+                } catch (error) {
+                    console.error('[ERROR] Auto-verification failed:', error);
+                    showOrderContent();
+                    showPaymentVerification();
+                    updateVerificationStatus('failed', 
+                        'Failed to verify payment automatically. Please try manual verification.', 
+                        false);
+                }
             }
         }
 
@@ -853,7 +1094,7 @@
             
             if (!orderId) {
                 console.log('[DEBUG] No order ID in URL');
-                showError();
+                showError('Invalid URL', 'No order ID provided in the URL.');
                 return;
             }
             
@@ -861,15 +1102,30 @@
             
             // If user is already authenticated, fetch order immediately
             if (currentUser) {
-                fetchOrderDetails(orderId);
+                fetchOrderDetails(orderId).then(() => {
+                    autoVerifyPayment();
+                });
             } else {
                 // Wait for auth state to be determined
                 showLoading();
             }
         }
 
+        // Health check for backend
+        async function checkBackendHealth() {
+            try {
+                const response = await fetch(`${BACKEND_API_URL}/health`);
+                const result = await response.json();
+                console.log('[DEBUG] Backend health:', result);
+                return true;
+            } catch (error) {
+                console.error('[ERROR] Backend health check failed:', error);
+                return false;
+            }
+        }
+
         // Auth state listener
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             console.log('[DEBUG] Auth state changed:', {
                 userExists: !!user,
                 uid: user?.uid,
@@ -880,14 +1136,28 @@
             
             const orderId = getOrderIdFromUrl();
             if (orderId) {
-                fetchOrderDetails(orderId);
+                await fetchOrderDetails(orderId);
+                await autoVerifyPayment();
             } else {
-                showError();
+                showError('Invalid URL', 'No order ID provided in the URL.');
             }
         });
 
+        // Check backend health on load
+        checkBackendHealth();
+
         // Initialize when page loads
         initializePage();
+
+        // Add global error handler
+        window.addEventListener('error', (event) => {
+            console.error('[ERROR] Global error:', event.error);
+        });
+
+        // Add unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('[ERROR] Unhandled promise rejection:', event.reason);
+        });
     </script>
 </body>
 </html>
