@@ -791,8 +791,20 @@
         }
 
         .nav-icon {
-            font-size: 20px;
+            width: 22px;
+            height: 22px;
             margin-bottom: 2px;
+        }
+        .nav-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: #4a6bff;   /* default color */
+            transition: stroke 0.3s ease, transform 0.3s ease;
+        }
+        .nav-item:hover .nav-icon svg,
+        .nav-item.active .nav-icon svg {
+            stroke: #1e40af;   /* darker blue on hover/active */
+            transform: scale(1.1);
         }
 
         .cart-badge {
@@ -944,6 +956,106 @@
                 grid-template-columns: repeat(4, 1fr);
             }
         }
+
+        #categoryModal .category-card {
+          flex: none;          /* ignore slider flex sizing */
+          min-width: 0;        /* prevent horizontal overflow in grid */
+          width: 100%;
+          margin-bottom: 0;    /* grid gap handles spacing */
+          border: 1px solid rgba(74,107,255,0.25);
+          box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        #categoryModal .category-card .product-image {
+          height: 120px;       /* shorter image like your Rx feel */
+          width: 100%;
+          object-fit: cover; /* avoid cropping packshots */
+          background: #f8fafc;
+        }
+
+        #categoryModal .category-card .product-info {
+          padding: 10px;
+        }
+
+        #categoryModal .category-card .product-name {
+          font-size: 0.85rem;
+          -webkit-line-clamp: 2; /* already present globally, keep clamp */
+        }
+
+        #categoryModal .category-card .quantity-row {
+          margin: 6px 0 0;
+        }
+
+        #categoryModal .category-card .add-to-cart-btn {
+          margin-top: 6px;
+        }
+                /* Category modal layout: one card per row */
+        #categoryModal .products-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;               /* spacing between cards */
+        }
+
+        /* Category modal card overrides */
+        #categoryModal .category-card {
+          width: 100%;             /* span full modal width */
+          flex: none;              /* ignore flex sizing from global product-card */
+          border: 1px solid rgba(74,107,255,0.25);
+          border-radius: 12px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        #categoryModal .category-card .product-image {
+          width: 100%;
+          height: 140px;           /* shorter height */
+          object-fit: contain;
+          background: #f8fafc;
+        }
+
+        #categoryModal .category-card .product-info {
+          padding: 12px;
+          text-align: left;        /* better alignment for full-row cards */
+        }
+
+        #categoryModal .category-card .product-name {
+          font-size: 15px;
+          font-weight: 600;
+          margin-bottom: 4px;
+        }
+
+        #categoryModal .category-card .product-price {
+          font-size: 14px;
+          color: #4a6bff;
+          margin-bottom: 8px;
+        }
+                /* Category modal card overrides */
+        #categoryModal .category-card {
+          width: 100%;
+          flex: none;
+          border: 1px solid rgba(74,107,255,0.25);
+          border-radius: 12px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+          overflow: hidden;            /* ensures rounded corners apply to the image */
+          display: flex;
+          flex-direction: column;
+        }
+
+        /* Product image fills full width */
+        #categoryModal .category-card .product-image {
+          width: 100%;
+          height: 180px;               /* adjust to taste */
+          object-fit: cover;           /* fills the box while maintaining aspect ratio */
+          display: block;
+        }
+
+        /* Info section below image */
+        #categoryModal .category-card .product-info {
+          padding: 12px;
+          text-align: left;
+        }
+
+
+
     </style>
 </head>
 <body>
@@ -975,7 +1087,12 @@
                     </button>
                 </div>
                 
-                <input type="file" id="prescriptionFile" class="upload-input" accept="image/*,.pdf" onchange="handlePrescriptionUpload(this)">
+                <input type="file" 
+                        id="prescriptionFile" 
+                        class="upload-input" 
+                        accept="image/*,.pdf">
+
+
                 <div id="uploadStatus" class="upload-status"></div>
             </section>
 
@@ -1096,24 +1213,52 @@
     <nav class="bottom-nav">
         <div class="bottom-nav-content">
             <button class="nav-item active" onclick="showHome()">
-                <div class="nav-icon">🏠</div>
+                <div class="nav-icon">
+                    <!-- Home icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l9-9 9 9M4 10v10a2 2 0 002 2h3m10-12v10a2 2 0 01-2 2h-3" />
+                    </svg>
+                </div>
                 <div>Home</div>
             </button>
+
             <a href="account.html" class="nav-item">
-                <div class="nav-icon">👤</div>
+                <div class="nav-icon">
+                    <!-- User icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5.121 17.804A10 10 0 0112 15a10 10 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
                 <div>Account</div>
             </a>
+
             <button class="nav-item" onclick="showPrescriptions()">
-                <div class="nav-icon">💊</div>
+                <div class="nav-icon">
+                    <!-- Pill / capsule style icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12l4.95-4.95a3.536 3.536 0 10-5-5L10 7m5 5l-4.95 4.95a3.536 3.536 0 11-5-5L10 7" />
+                    </svg>
+                </div>
                 <div>Prescriptions</div>
             </button>
+
             <button class="nav-item" onclick="openCart()" style="position: relative;">
-                <div class="nav-icon">🛒</div>
+                <div class="nav-icon">
+                    <!-- Shopping cart -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2m0 0h13.2l1.6 8H7l-1.6-8zm1.6 8l-1.6 8h16l-1.6-8M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
+                    </svg>
+                </div>
                 <div>Cart</div>
                 <div id="cartBadge" class="cart-badge" style="display: none;">0</div>
             </button>
         </div>
     </nav>
+
 
     <script>
         // Firebase configuration
@@ -1125,6 +1270,8 @@
             messagingSenderId: "968868548902",
             appId: "1:968868548902:web:0607bd63857c7c538131e7"
         };
+        const BASEROW_API_TOKEN = "1GP5AyyvuuRS9F5zS66WIFD5IUrEf1ue";
+        const BASEROW_TABLE_ID = "658869";
 
         // Initialize Firebase
         if (!firebase.apps.length) {
@@ -1153,6 +1300,13 @@
         const notification = document.getElementById('notification');
         const cartBadge = document.getElementById('cartBadge');
         const searchInput = document.getElementById('searchInput');
+        // put near other DOM lookups
+        const fileInput = document.getElementById('prescriptionFile');
+        const uploadStatus = document.getElementById('uploadStatus');
+
+        // attach listener (no inline onchange)
+        fileInput.addEventListener('change', handlePrescriptionUpload);
+
         
         // Global variables
         let allProducts = [];
@@ -1245,25 +1399,26 @@
 
         // Display category products in modal (using first code's logic)
         function displayCategoryProductsInModal(products) {
-            modalCategoryProducts.innerHTML = '';
-            const categorySection = document.createElement('div');
-            categorySection.className = 'category-section';
+          modalCategoryProducts.innerHTML = '';
+          const categorySection = document.createElement('div');
+          categorySection.className = 'category-section';
 
-            // Create grid container for products
-            const productGrid = document.createElement('div');
-            productGrid.className = 'products-grid';
-            
-            products.forEach(product => {
-                productGrid.appendChild(createProductCard(product));
-            });
-            
-            categorySection.appendChild(productGrid);
-            modalCategoryProducts.appendChild(categorySection);
+          const productGrid = document.createElement('div');
+          productGrid.className = 'products-grid';
 
-            // Remove any auto-scroll intervals since we're not doing horizontal scrolling anymore
-            Object.values(autoScrollIntervals).forEach(interval => clearInterval(interval));
-            autoScrollIntervals = {};
+          products.forEach(product => {
+            const card = createProductCard(product); // returns .product-card
+            card.classList.add('category-card');     // <-- add this line
+            productGrid.appendChild(card);
+          });
+
+          categorySection.appendChild(productGrid);
+          modalCategoryProducts.appendChild(categorySection);
+
+          Object.values(autoScrollIntervals).forEach(interval => clearInterval(interval));
+          autoScrollIntervals = {};
         }
+
         // Create product card (from first code)
         function createProductCard(product) {
             const card = document.createElement('div');
@@ -1687,48 +1842,128 @@
         }
 
         // Handle prescription upload
-        function handlePrescriptionUpload(input) {
-            const file = input.files[0];
-            const statusDiv = document.getElementById('uploadStatus');
-            
-            if (!file) return;
-            
-            // Validate file size (5MB limit)
-            if (file.size > 5 * 1024 * 1024) {
-                statusDiv.className = 'upload-status upload-error';
-                statusDiv.textContent = 'File size must be less than 5MB';
-                statusDiv.style.display = 'block';
-                return;
+        async function handlePrescriptionUpload(eventOrFiles) {
+          // normalize: support (event) or (FileList) being passed
+          const files = eventOrFiles?.target?.files ?? eventOrFiles?.files ?? eventOrFiles;
+          // make sure we have an HTML element reference too
+          const fileInputEl = document.getElementById('prescriptionFile');
+          const uploadStatusEl = document.getElementById('uploadStatus');
+
+          function setStatus(text, kind = 'working') {
+            if (!uploadStatusEl) return;
+            uploadStatusEl.style.display = 'block';
+            uploadStatusEl.className = 'upload-status ' + (kind === 'working' ? 'upload-working' : kind === 'success' ? 'upload-success' : 'upload-error');
+            if (kind === 'working') {
+              uploadStatusEl.innerHTML = '<div class="status-row"><div class="tiny-spinner"></div><div>' + text + '</div></div>';
+            } else {
+              uploadStatusEl.textContent = text;
             }
-            
-            // Validate file type
-            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
-            if (!allowedTypes.includes(file.type)) {
-                statusDiv.className = 'upload-status upload-error';
-                statusDiv.textContent = 'Please upload a valid image (JPG, PNG) or PDF file';
-                statusDiv.style.display = 'block';
-                return;
+          }
+
+          function clearStatusLater(ms = 5000) {
+            setTimeout(() => { 
+              if (uploadStatusEl) { uploadStatusEl.style.display = 'none'; uploadStatusEl.textContent = ''; } 
+            }, ms);
+          }
+
+          if (!files || files.length === 0) {
+            // nothing selected - do nothing
+            return;
+          }
+
+          const file = files[0];
+          if (!file) return;
+
+          // basic validation (guarded)
+          const maxSize = 5 * 1024 * 1024; // 5MB
+          const allowedTypes = ['image/jpeg','image/png','image/jpg','application/pdf'];
+
+          // safeguard: if file.type is undefined, do an extension fallback check
+          const fileType = file.type || (file.name && file.name.split('.').pop() ? 'fallback/' + file.name.split('.').pop().toLowerCase() : '');
+
+          if (!allowedTypes.includes(fileType) && !allowedTypes.some(t => (t === 'image/jpeg' && fileType.startsWith('image/')))) {
+            setStatus('Please upload a JPG, PNG or PDF file', 'error');
+            return;
+          }
+          if (file.size > maxSize) {
+            setStatus('File too large — must be under 5MB', 'error');
+            return;
+          }
+
+          if (!firebase.auth().currentUser) {
+            setStatus('You must be signed in to upload a prescription', 'error');
+            showNotification('Please sign in first');
+            return;
+          }
+
+          const customerName = firebase.auth().currentUser.displayName || (firebase.auth().currentUser.email ? firebase.auth().currentUser.email.split('@')[0] : 'Unknown');
+          const email = firebase.auth().currentUser.email || '';
+
+          // disable input while uploading
+          if (fileInputEl) fileInputEl.disabled = true;
+          setStatus('Uploading prescription — please wait...', 'working');
+
+          try {
+            // 1) Upload file to Baserow (multipart)
+            const uploadUrl = 'https://api.baserow.io/api/user-files/upload-file/';
+            const fd = new FormData();
+            fd.append('file', file, file.name);
+
+            const uploadResp = await fetch(uploadUrl, {
+              method: 'POST',
+              headers: { 'Authorization': 'Token ' + BASEROW_API_TOKEN },
+              body: fd
+            });
+
+            if (!uploadResp.ok) {
+              const text = await uploadResp.text();
+              throw new Error('File upload failed: ' + (text || uploadResp.statusText));
             }
-            
-            // Simulate upload process
-            statusDiv.className = 'upload-status';
-            statusDiv.textContent = 'Uploading prescription...';
-            statusDiv.style.display = 'block';
-            statusDiv.style.background = 'rgba(52, 152, 219, 0.2)';
-            statusDiv.style.color = '#3498db';
-            statusDiv.style.border = '1px solid #3498db';
-            
-            // Simulate upload completion
-            setTimeout(() => {
-                statusDiv.className = 'upload-status upload-success';
-                statusDiv.textContent = `✅ Prescription "${file.name}" uploaded successfully! A pharmacist will review it shortly.`;
-                
-                // Hide after 5 seconds
-                setTimeout(() => {
-                    statusDiv.style.display = 'none';
-                    input.value = ''; // Clear the input
-                }, 5000);
-            }, 2000);
+
+            const uploadJson = await uploadResp.json();
+            if (!uploadJson.name) throw new Error('Unexpected upload response: missing "name"');
+            const uploadedFileName = uploadJson.name;
+
+            // 2) Create row in Baserow table
+            if (typeof BASEROW_TABLE_ID === 'undefined') {
+              // prevent runtime blowup; remind developer to set the ID
+              throw new Error('BASEROW_TABLE_ID is not defined. Please set it to your table id.');
+            }
+
+            const createRowUrl = `https://api.baserow.io/api/database/rows/table/${BASEROW_TABLE_ID}/?user_field_names=true`;
+            const payload = {
+              "Customer Name": customerName,
+              "Email": email,
+              "File": [{ "name": uploadedFileName }]
+            };
+
+            const createResp = await fetch(createRowUrl, {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Token ' + BASEROW_API_TOKEN,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            });
+
+            if (!createResp.ok) {
+              const text = await createResp.text();
+              throw new Error('Failed to create row: ' + (text || createResp.statusText));
+            }
+
+            setStatus('✅ Prescription uploaded — a pharmacist will contact you by email shortly', 'success');
+            clearStatusLater(7000);
+            showNotification('Prescription received — we will email you soon');
+
+            // reset input
+            if (fileInputEl) fileInputEl.value = '';
+          } catch (err) {
+            console.error('Prescription upload error', err);
+            setStatus('Upload failed — please try again or contact support', 'error');
+            showNotification('Upload failed. Please try again.');
+          } finally {
+            if (fileInputEl) fileInputEl.disabled = false;
+          }
         }
 
         // Start online consultation
