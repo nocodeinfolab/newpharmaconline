@@ -352,24 +352,6 @@
             border-color: #adb5bd;
         }
 
-        .btn-verify {
-            background: linear-gradient(135deg, #2196F3, #1976D2);
-            color: white;
-        }
-
-        .btn-verify:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
-        }
-
-        .btn-verify:disabled {
-            background: #e0e0e0;
-            color: #999;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
         .error-message {
             background: #ffebee;
             color: #c62828;
@@ -387,26 +369,12 @@
             display: block;
         }
 
-        .payment-verification-section {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .verification-message {
-            color: #856404;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-
         .verification-status {
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 15px;
             font-weight: 600;
+            text-align: center;
         }
 
         .verification-success {
@@ -558,16 +526,8 @@
                     <div class="success-subtitle">Thank you for your purchase</div>
                 </div>
 
-                <!-- Payment Verification Section -->
-                <div class="payment-verification-section" id="paymentVerificationSection" style="display: none;">
-                    <div class="verification-message">
-                        Your payment needs to be verified. Click the button below to verify your payment status.
-                    </div>
-                    <div class="verification-status" id="verificationStatus" style="display: none;"></div>
-                    <button class="btn btn-verify" id="verifyPaymentBtn" onclick="verifyPayment()">
-                        Verify Payment
-                    </button>
-                </div>
+                <!-- Verification Status (shown during automatic verification) -->
+                <div class="verification-status" id="verificationStatus" style="display: none;"></div>
 
                 <!-- Order Information Section -->
                 <div class="section">
@@ -716,6 +676,7 @@
 
         let currentUser = null;
         let orderData = null;
+        let verificationAttempted = false;
 
         // Get order ID from URL parameter
         function getOrderIdFromUrl() {
@@ -780,29 +741,6 @@
             document.getElementById('orderContent').style.display = 'block';
         }
 
-        // Show payment verification section
-        function showPaymentVerification() {
-            const verificationSection = document.getElementById('paymentVerificationSection');
-            verificationSection.style.display = 'block';
-            
-            // Update verification message based on current status
-            const paymentStatus = orderData.payment_status?.toLowerCase();
-            const messageElement = verificationSection.querySelector('.verification-message');
-            
-            if (paymentStatus === 'completed' && !orderData.paystack_data) {
-                messageElement.textContent = 'Your payment status shows as completed, but verification is incomplete. Please verify to ensure your order is processed correctly.';
-            } else if (paymentStatus === 'failed') {
-                messageElement.textContent = 'Your payment verification failed. Please try again or contact support if the issue persists.';
-            } else {
-                messageElement.textContent = 'Your payment needs to be verified. Click the button below to verify your payment status.';
-            }
-        }
-
-        // Hide payment verification section
-        function hidePaymentVerification() {
-            document.getElementById('paymentVerificationSection').style.display = 'none';
-        }
-
         // Update verification status
         function updateVerificationStatus(status, message, isSuccess) {
             const statusElement = document.getElementById('verificationStatus');
@@ -811,15 +749,52 @@
             statusElement.className = 'verification-status ' + 
                 (status === 'loading' ? 'verification-loading' : 
                  isSuccess ? 'verification-success' : 'verification-failed');
+            
+            // Hide status after 5 seconds if successful, or 10 seconds if failed
+            const hideAfter = isSuccess ? 5000 : 10000;
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, hideAfter);
         }
 
-        // Verify payment with backend
-        window.verifyPayment = async function() {
-            const verifyBtn = document.getElementById('verifyPaymentBtn');
-            verifyBtn.disabled = true;
-            verifyBtn.textContent = 'Verifying...';
+        // Check if payment verification is needed
+        function needsPaymentVerification() {
+            if (!orderData || verificationAttempted) return false;
             
-            updateVerificationStatus('loading', 'Verifying payment with backend...', false);
+            const paymentStatus = orderData.payment_status?.toLowerCase();
+            const orderStatus = orderData.order_status?.toLowerCase();
+            const paymentReference = orderData.payment_reference;
+            const hasPaystackData = orderData.paystack_data;
+
+            console.log('[DEBUG] Payment verification check:', {
+                paymentStatus,
+                orderStatus,
+                paymentReference,
+                hasPaystackData: !!hasPaystackData,
+                verificationAttempted
+            });
+
+            // Need verification if:
+            // 1. We have a payment reference AND
+            // 2. Payment status is pending/failed OR (payment is completed but no paystack verification data exists)
+            // 3. Order status is still pending
+            return paymentReference && 
+                ((paymentStatus === 'pending' || paymentStatus === 'failed') || 
+                 (paymentStatus === 'completed' && !hasPaystackData)) && 
+                orderStatus === 'pending';
+        }
+
+        // Automatically verify payment with backend
+        async function autoVerifyPayment() {
+            if (!needsPaymentVerification()) {
+                console.log('[DEBUG] Payment verification not needed');
+                return;
+            }
+
+            console.log('[DEBUG] Starting automatic payment verification');
+            verificationAttempted = true;
+            
+            updateVerificationStatus('loading', 'Verifying your payment automatically...', false);
 
             try {
                 const response = await fetch(`${BACKEND_API_URL}/verify-payment`, {
@@ -834,30 +809,30 @@
                 });
 
                 const result = await response.json();
+                console.log('[DEBUG] Auto-verification result:', result);
 
-                if (result.verified && result.status === 'success') {
-                    updateVerificationStatus('success', 'Payment verified successfully! Your order is now being processed.', true);
+                if (result.verified) {
+                    updateVerificationStatus('success', 
+                        'Payment verified successfully! Your order is now being processed.', 
+                        true);
                     
-                    // Refresh order data to get updated status
+                    // Refresh order data to get updated status after a short delay
                     setTimeout(async () => {
+                        console.log('[DEBUG] Refreshing order data after successful verification');
                         await fetchOrderDetails(orderData.id, false);
-                        hidePaymentVerification();
                     }, 2000);
                 } else {
                     updateVerificationStatus('failed', 
-                        result.message || 'Payment verification failed. Please try again or contact support.', 
+                        result.message || 'Payment verification failed. Please contact support if the issue persists.', 
                         false);
                 }
             } catch (error) {
-                console.error('Payment verification error:', error);
+                console.error('[ERROR] Auto-verification failed:', error);
                 updateVerificationStatus('failed', 
-                    'Failed to connect to verification service. Please try again.', 
+                    'Failed to verify payment automatically. Please refresh the page or contact support.', 
                     false);
-            } finally {
-                verifyBtn.disabled = false;
-                verifyBtn.textContent = 'Verify Payment';
             }
-        };
+        }
 
         // Render order items
         function renderOrderItems() {
@@ -964,38 +939,6 @@
             paymentStatusElement.className = `payment-status payment-${status.toLowerCase()}`;
         }
 
-        // Check if payment verification is needed
-        function checkPaymentVerification() {
-            const paymentStatus = orderData.payment_status?.toLowerCase();
-            const orderStatus = orderData.order_status?.toLowerCase();
-            const paymentReference = orderData.payment_reference;
-            const hasPaystackData = orderData.paystack_data;
-
-            console.log('[DEBUG] Payment verification check:', {
-                paymentStatus,
-                orderStatus,
-                paymentReference,
-                hasPaystackData: !!hasPaystackData
-            });
-
-            // Show verification if:
-            // 1. We have a payment reference AND
-            // 2. Payment status is pending/failed OR (payment is completed but no paystack verification data exists)
-            // 3. Order status is still pending
-            const needsVerification = paymentReference && 
-                ((paymentStatus === 'pending' || paymentStatus === 'failed') || 
-                 (paymentStatus === 'completed' && !hasPaystackData)) && 
-                orderStatus === 'pending';
-
-            if (needsVerification) {
-                console.log('[DEBUG] Showing payment verification section');
-                showPaymentVerification();
-            } else {
-                console.log('[DEBUG] Hiding payment verification section');
-                hidePaymentVerification();
-            }
-        }
-
         // Populate order information
         function populateOrderInfo() {
             console.log('[DEBUG] Populating order info:', {
@@ -1032,7 +975,6 @@
             renderOrderItems();
             renderCustomerDetails();
             updateOrderTracking();
-            checkPaymentVerification();
         }
 
         // Fetch order details
@@ -1065,64 +1007,14 @@
                 populateOrderInfo();
                 showOrderContent();
                 
+                // Automatically trigger payment verification if needed
+                setTimeout(() => {
+                    autoVerifyPayment();
+                }, 1000); // Small delay to let the UI load
+                
             } catch (error) {
                 console.error('[ERROR] Failed to fetch order:', error);
                 showError('Loading Error', 'Failed to load order details. Please try refreshing the page.');
-            }
-        }
-
-        // Auto-verify payment on page load if coming from payment
-        async function autoVerifyPayment() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const shouldVerify = urlParams.get('verify');
-            const paymentReference = urlParams.get('reference');
-            
-            if (shouldVerify === 'true' && paymentReference && orderData) {
-                console.log('[DEBUG] Auto-verifying payment:', paymentReference);
-                showLoading('Verifying your payment...');
-                
-                try {
-                    const response = await fetch(`${BACKEND_API_URL}/verify-payment`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            reference: paymentReference,
-                            orderId: orderData.id
-                        })
-                    });
-
-                    const result = await response.json();
-                    console.log('[DEBUG] Auto-verification result:', result);
-
-                    if (result.verified && result.status === 'success') {
-                        // Refresh order data to get updated status
-                        await fetchOrderDetails(orderData.id, false);
-                        
-                        // Show success message briefly
-                        updateVerificationStatus('success', 
-                            'Payment verified successfully! Your order is being processed.', 
-                            true);
-                        
-                        setTimeout(() => {
-                            hidePaymentVerification();
-                        }, 3000);
-                    } else {
-                        showOrderContent();
-                        showPaymentVerification();
-                        updateVerificationStatus('failed', 
-                            'Payment verification failed. Please try manual verification.', 
-                            false);
-                    }
-                } catch (error) {
-                    console.error('[ERROR] Auto-verification failed:', error);
-                    showOrderContent();
-                    showPaymentVerification();
-                    updateVerificationStatus('failed', 
-                        'Failed to verify payment automatically. Please try manual verification.', 
-                        false);
-                }
             }
         }
 
@@ -1140,25 +1032,10 @@
             
             // If user is already authenticated, fetch order immediately
             if (currentUser) {
-                fetchOrderDetails(orderId).then(() => {
-                    autoVerifyPayment();
-                });
+                fetchOrderDetails(orderId);
             } else {
                 // Wait for auth state to be determined
                 showLoading();
-            }
-        }
-
-        // Health check for backend
-        async function checkBackendHealth() {
-            try {
-                const response = await fetch(`${BACKEND_API_URL}/health`);
-                const result = await response.json();
-                console.log('[DEBUG] Backend health:', result);
-                return true;
-            } catch (error) {
-                console.error('[ERROR] Backend health check failed:', error);
-                return false;
             }
         }
 
@@ -1175,14 +1052,10 @@
             const orderId = getOrderIdFromUrl();
             if (orderId) {
                 await fetchOrderDetails(orderId);
-                await autoVerifyPayment();
             } else {
                 showError('Invalid URL', 'No order ID provided in the URL.');
             }
         });
-
-        // Check backend health on load
-        //checkBackendHealth();
 
         // Initialize when page loads
         initializePage();
