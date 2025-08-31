@@ -40,7 +40,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
             position: relative;
         }
 
@@ -167,6 +167,7 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            margin-bottom: 15px;
         }
 
         .submit-btn:hover {
@@ -184,12 +185,121 @@
             transform: none;
         }
 
+        .google-btn {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .google-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #4285f4;
+        }
+
+        .google-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE3LjUzIDkuMjNDMTcuNTMgOC40OTUgMTcuNDY1IDcuNzg1IDE3LjM0NSA3LjA5SDlWMTAuODFIMTMuNjhDMTMuNDggMTEuODMgMTIuOTQgMTIuNzA1IDEyLjE0IDEzLjI5VjE1LjcySDE0LjkzQzE2LjU2IDEzLjk5IDE3LjUzIDExLjc4IDE3LjUzIDkuMjNaIiBmaWxsPSIjNDI4NUY0Ii8+CjxwYXRoIGQ9Ik05IDExOEM5IDkuMjY1IDEwLjM1IDcuNzcgMTIuMDMgNy43NzVDMTMuMzMgNy43NzUgMTQuNSA4LjM5IDE1LjE5IDkuMjc1TDE1LjgxIDEwLjY2SDE5LjY1VjEwLjY2QzE4Ljk5NSAxMC45OCAxOC4zOTUgMTEuMzcgMTcuODcgMTEuODJWMTUuODJIMTQuMUMxMi44MyAxNi44NSAxMS4yNyAxNy41NyA5IDE3LjU3QzYuMzMgMTcuNTcgNCAyMCA0IDE3LjU3VjExLjQ1SCdmaWxsPSIjMzRBODUzIi8+CjxwYXRoIGQ9Ik05IDQ0VjcuNzc1QzEwLjY1IDcuNzcgMTIuMDkgOC4yNjUgMTMuNjggOS42TDE1LjgxIDEwLjY2SDE5LjY1VjEwLjY2QzE4Ljk5NSAxMC45OCAxOC4zOTUgMTEuMzcgMTcuODcgMTEuODJWMTUuODJIMTQuMUMxMi44MyAxNi44NSAxMS4yNyAxNy41NyA5IDE3LjU3QzYuMzMgMTcuNTcgNCAyMCA0IDE3LjU3VjExLjQ1SDE1LjgxWiIgZmlsbD0iI0ZCQkMwNSIvPgo8cGF0aCBkPSJNOSA0LjQzQzEwLjQ3IDQuNDMgMTEuNzYgNC45NCAxMi43MiA1Ljg1TDE0LjY1IDMuOTJDMTMuMTcgMi41NyAxMS4yMiAxLjc3IDkgMS43N0M1LjYxIDEuNzcgMi43MyA0LjEgMS43NyA3LjM4TDQuNTggOS4xQzUuMzQgNi41OSA3LjAyIDQuNDMgOSA0LjQzWiIgZmlsbD0iI0VBNDMzNSIvPgo8L3N2Zz4K') no-repeat center;
+            background-size: contain;
+        }
+
+        .divider {
+            position: relative;
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 15px;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .forgot-password a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: #45a049;
+            text-decoration: underline;
+        }
+
+        .back-btn {
+            background: transparent;
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .back-btn:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
         .loading {
             display: none;
             width: 20px;
             height: 20px;
             border: 2px solid transparent;
             border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        .google-loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid #4285f4;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-right: 10px;
@@ -228,6 +338,12 @@
             background: #f9f9f9;
         }
 
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 5px 5px 5px;
@@ -261,13 +377,23 @@
                 font-size: 16px;
             }
             
-            .submit-btn {
+            .submit-btn, .google-btn {
                 padding: 12px;
                 font-size: 15px;
             }
             
             .form-toggle {
                 margin-bottom: 20px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .back-btn {
+                width: 100%;
+                margin-right: 0;
             }
         }
     </style>
@@ -278,7 +404,7 @@
         <div class="tagline">Your Trusted Online Pharmacy</div>
 
         <div class="form-container">
-            <div class="form-toggle">
+            <div class="form-toggle" id="formToggle">
                 <button class="toggle-btn active" onclick="switchForm('login')">Login</button>
                 <button class="toggle-btn" onclick="switchForm('signup')">Sign Up</button>
             </div>
@@ -288,6 +414,16 @@
 
             <!-- Login Form -->
             <form class="form active" id="loginForm">
+                <button type="button" class="google-btn" id="googleLoginBtn">
+                    <div class="google-loading" id="googleLoginLoading"></div>
+                    <div class="google-icon"></div>
+                    <span id="googleLoginText">Continue with Google</span>
+                </button>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
                 <div class="form-group">
                     <label for="loginEmail">Email Address</label>
                     <input type="email" id="loginEmail" placeholder="Enter your email" required>
@@ -300,10 +436,24 @@
                     <div class="loading" id="loginLoading"></div>
                     <span id="loginBtnText">Login to Your Account</span>
                 </button>
+
+                <div class="forgot-password">
+                    <a href="#" onclick="showForgotPassword(); return false;">Forgot your password?</a>
+                </div>
             </form>
 
             <!-- Sign Up Form -->
             <form class="form" id="signupForm">
+                <button type="button" class="google-btn" id="googleSignupBtn">
+                    <div class="google-loading" id="googleSignupLoading"></div>
+                    <div class="google-icon"></div>
+                    <span id="googleSignupText">Sign up with Google</span>
+                </button>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
                 <div class="form-group">
                     <label for="signupName">Full Name</label>
                     <input type="text" id="signupName" placeholder="Enter your full name" required>
@@ -325,6 +475,25 @@
                     <span id="signupBtnText">Create Your Account</span>
                 </button>
             </form>
+
+            <!-- Forgot Password Form -->
+            <form class="form" id="forgotPasswordForm">
+                <div class="form-group">
+                    <label for="resetEmail">Email Address</label>
+                    <input type="email" id="resetEmail" placeholder="Enter your email address" required>
+                </div>
+                <div style="margin-bottom: 15px; color: #666; font-size: 14px; line-height: 1.4;">
+                    We'll send you a link to reset your password.
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="back-btn" onclick="backToLogin()">Back</button>
+                    <button type="submit" class="submit-btn" style="flex: 1;">
+                        <div class="loading" id="resetLoading"></div>
+                        <span id="resetBtnText">Send Reset Link</span>
+                    </button>
+                </div>
+            </form>
         </div>
 
         <div class="footer">
@@ -335,8 +504,22 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword,
+            GoogleAuthProvider,
+            signInWithPopup,
+            sendPasswordResetEmail,
+            updateProfile
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            serverTimestamp,
+            getDoc 
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // Firebase configuration
         const firebaseConfig = {
@@ -352,12 +535,15 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
 
         // Global functions for form switching
         window.switchForm = function(formType) {
             const loginForm = document.getElementById('loginForm');
             const signupForm = document.getElementById('signupForm');
+            const forgotPasswordForm = document.getElementById('forgotPasswordForm');
             const toggleBtns = document.querySelectorAll('.toggle-btn');
+            const formToggle = document.getElementById('formToggle');
             
             // Hide error/success messages
             hideMessages();
@@ -365,19 +551,56 @@
             // Clear forms
             loginForm.reset();
             signupForm.reset();
+            forgotPasswordForm.reset();
+            
+            // Show form toggle
+            formToggle.style.display = 'flex';
+            
+            // Hide all forms
+            loginForm.classList.remove('active');
+            signupForm.classList.remove('active');
+            forgotPasswordForm.classList.remove('active');
             
             // Update toggle buttons
             toggleBtns.forEach(btn => btn.classList.remove('active'));
             
             if (formType === 'login') {
                 loginForm.classList.add('active');
-                signupForm.classList.remove('active');
                 toggleBtns[0].classList.add('active');
             } else {
                 signupForm.classList.add('active');
-                loginForm.classList.remove('active');
                 toggleBtns[1].classList.add('active');
             }
+        };
+
+        window.showForgotPassword = function() {
+            const loginForm = document.getElementById('loginForm');
+            const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+            const formToggle = document.getElementById('formToggle');
+            
+            hideMessages();
+            
+            // Hide login form and toggle
+            loginForm.classList.remove('active');
+            formToggle.style.display = 'none';
+            
+            // Show forgot password form
+            forgotPasswordForm.classList.add('active');
+        };
+
+        window.backToLogin = function() {
+            const loginForm = document.getElementById('loginForm');
+            const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+            const formToggle = document.getElementById('formToggle');
+            
+            hideMessages();
+            
+            // Hide forgot password form
+            forgotPasswordForm.classList.remove('active');
+            
+            // Show login form and toggle
+            formToggle.style.display = 'flex';
+            loginForm.classList.add('active');
         };
 
         function showError(message) {
@@ -402,18 +625,126 @@
         function setLoading(formType, isLoading) {
             const loading = document.getElementById(formType + 'Loading');
             const btnText = document.getElementById(formType + 'BtnText');
-            const submitBtn = document.querySelector(`#${formType}Form .submit-btn`);
+            let submitBtn;
+            
+            // Handle different form structures
+            if (formType === 'reset') {
+                submitBtn = document.querySelector('#forgotPasswordForm .submit-btn');
+            } else {
+                submitBtn = document.querySelector(`#${formType}Form .submit-btn`);
+            }
+            
+            if (loading) {
+                if (isLoading) {
+                    loading.style.display = 'inline-block';
+                } else {
+                    loading.style.display = 'none';
+                }
+            }
+            
+            if (btnText) {
+                if (isLoading) {
+                    if (formType === 'login') {
+                        btnText.textContent = 'Logging in...';
+                    } else if (formType === 'signup') {
+                        btnText.textContent = 'Creating account...';
+                    } else if (formType === 'reset') {
+                        btnText.textContent = 'Sending...';
+                    }
+                } else {
+                    if (formType === 'login') {
+                        btnText.textContent = 'Login to Your Account';
+                    } else if (formType === 'signup') {
+                        btnText.textContent = 'Create Your Account';
+                    } else if (formType === 'reset') {
+                        btnText.textContent = 'Send Reset Link';
+                    }
+                }
+            }
+            
+            if (submitBtn) {
+                submitBtn.disabled = isLoading;
+            }
+        }
+
+        function setGoogleLoading(formType, isLoading) {
+            const loading = document.getElementById(`google${formType.charAt(0).toUpperCase() + formType.slice(1)}Loading`);
+            const btnText = document.getElementById(`google${formType.charAt(0).toUpperCase() + formType.slice(1)}Text`);
+            const googleBtn = document.getElementById(`google${formType.charAt(0).toUpperCase() + formType.slice(1)}Btn`);
             
             if (isLoading) {
                 loading.style.display = 'inline-block';
-                btnText.textContent = formType === 'login' ? 'Logging in...' : 'Creating account...';
-                submitBtn.disabled = true;
+                btnText.textContent = formType === 'login' ? 'Signing in...' : 'Creating account...';
+                googleBtn.disabled = true;
             } else {
                 loading.style.display = 'none';
-                btnText.textContent = formType === 'login' ? 'Login to Your Account' : 'Create Your Account';
-                submitBtn.disabled = false;
+                btnText.textContent = formType === 'login' ? 'Continue with Google' : 'Sign up with Google';
+                googleBtn.disabled = false;
             }
         }
+
+        // Google Sign In
+        async function handleGoogleAuth(isSignUp = false) {
+            const formType = isSignUp ? 'signup' : 'login';
+            hideMessages();
+            setGoogleLoading(formType, true);
+            
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                // Check if this is a new user and we're on signup, or existing user on login
+                const userDoc = await getDoc(doc(db, 'Users', user.uid));
+                const userExists = userDoc.exists();
+                
+                if (isSignUp && userExists) {
+                    showError('Account already exists. Please use the login form.');
+                    setGoogleLoading(formType, false);
+                    return;
+                }
+                
+                // If new user, create user document
+                if (!userExists) {
+                    const userData = {
+                        created_time: serverTimestamp(),
+                        email: user.email,
+                        uid: user.uid,
+                        name: user.displayName || user.email.split('@')[0],
+                        provider: 'google'
+                    };
+                    
+                    await setDoc(doc(db, 'Users', user.uid), userData);
+                }
+                
+                showSuccess('Authentication successful! Redirecting...');
+                
+                setTimeout(() => {
+                    window.location.href = 'homepage.html';
+                }, 1500);
+                
+            } catch (error) {
+                let errorMessage = 'Google authentication failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/popup-closed-by-user':
+                        errorMessage = 'Authentication cancelled.';
+                        break;
+                    case 'auth/popup-blocked':
+                        errorMessage = 'Popup blocked. Please allow popups and try again.';
+                        break;
+                    case 'auth/account-exists-with-different-credential':
+                        errorMessage = 'An account already exists with this email using a different sign-in method.';
+                        break;
+                }
+                
+                showError(errorMessage);
+                setGoogleLoading(formType, false);
+            }
+        }
+
+        // Google button event listeners
+        document.getElementById('googleLoginBtn').addEventListener('click', () => handleGoogleAuth(false));
+        document.getElementById('googleSignupBtn').addEventListener('click', () => handleGoogleAuth(true));
 
         // Login form handler
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -428,7 +759,6 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 showSuccess('Login successful! Redirecting...');
                 
-                // Redirect after a brief delay
                 setTimeout(() => {
                     window.location.href = 'homepage.html';
                 }, 1500);
@@ -448,6 +778,9 @@
                         break;
                     case 'auth/too-many-requests':
                         errorMessage = 'Too many failed attempts. Please try again later.';
+                        break;
+                    case 'auth/invalid-credential':
+                        errorMessage = 'Invalid email or password. Please check your credentials.';
                         break;
                 }
                 
@@ -478,13 +811,19 @@
                 // Create user account
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
+
+                // Update user profile with display name
+                await updateProfile(user, {
+                    displayName: name
+                });
                 
                 // Create user document in Firestore
                 const userDoc = {
                     created_time: serverTimestamp(),
                     email: email,
                     uid: user.uid,
-                    name: name
+                    name: name,
+                    provider: 'email'
                 };
                 
                 // Add phone if provided
@@ -521,6 +860,46 @@
                 
                 showError(errorMessage);
                 setLoading('signup', false);
+            }
+        });
+
+        // Forgot password form handler
+        document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessages();
+            setLoading('reset', true);
+            
+            const email = document.getElementById('resetEmail').value;
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showSuccess('Password reset email sent! Please check your inbox and spam folder.');
+                
+                // Clear the form
+                document.getElementById('resetEmail').value = '';
+                
+                // Go back to login after showing success message
+                setTimeout(() => {
+                    backToLogin();
+                }, 3000);
+                
+            } catch (error) {
+                let errorMessage = 'Failed to send reset email. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email address.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Please enter a valid email address.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many requests. Please wait before trying again.';
+                        break;
+                }
+                
+                showError(errorMessage);
+                setLoading('reset', false);
             }
         });
     </script>
