@@ -1053,6 +1053,12 @@
           padding: 12px;
           text-align: left;
         }
+        .prescription-badge {
+            font-size: 0.6rem;  /* increase as needed */
+            
+            color: #b00020;     /* optional: nice red for emphasis */
+        }
+
 
 
 
@@ -1541,7 +1547,9 @@
                     status: 'Active',
                     created_at: now,
                     updated_at: now,
-                    image_url: product.imageUrl || ''
+                    image_url: product.imageUrl || '',
+                    prescriptionRequired: product.prescriptionRequired
+
                 });
             }
         }
@@ -1951,7 +1959,7 @@
               throw new Error('Failed to create row: ' + (text || createResp.statusText));
             }
 
-            setStatus('✅ Prescription uploaded — a pharmacist will contact you by email shortly', 'success');
+            setStatus('✅ Prescription uploaded — our pharmacist will contact you by email shortly', 'success');
             clearStatusLater(7000);
             showNotification('Prescription received — we will email you soon');
 
