@@ -1058,6 +1058,13 @@
             
             color: #b00020;     /* optional: nice red for emphasis */
         }
+        .prescription-subtitle {
+            font-size: 14px;          /* smaller text */
+            font-style: italic;       /* different font style */
+            color: #444;              /* softer color */
+            margin-bottom: 4px;       /* spacing above main title */
+            text-align: center;       /* center align like the main title */
+        }
 
 
 
@@ -1083,7 +1090,12 @@
                     <input type="text" class="search-input" placeholder="🔍 Search medications..." id="searchInput" style="width: 100%; max-width: 500px; margin: 0 auto;">
                 </div>
                 
-                <h2 class="prescription-title">📋 Upload Your Prescription</h2>
+                <div class="prescription-title-wrapper">
+                    <p class="prescription-subtitle">Can't find your medication?</p>
+                    <h2 class="prescription-title">📋 Upload Your Prescription</h2>
+                </div>
+
+
                 <div class="upload-buttons">
                     <button class="upload-button" onclick="document.getElementById('prescriptionFile').click()">
                         📁 Upload Prescription
