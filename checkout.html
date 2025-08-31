@@ -376,6 +376,91 @@
                 grid-template-columns: 1fr;
             }
         }
+        .prescription-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(255, 193, 7, 0.1);
+        }
+
+        .prescription-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-prescription-btn {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #212529;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .upload-prescription-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(255, 193, 7, 0.3);
+        }
+
+        .prescription-file-input {
+            display: none;
+        }
+
+        .upload-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .upload-working {
+            background: #e3f2fd;
+            color: #0277bd;
+            border: 1px solid #81d4fa;
+        }
+
+        .upload-success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+
+        .upload-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tiny-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e0e0e0;
+            border-top: 2px solid #0277bd;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
     </style>
 </head>
 <body>
@@ -412,6 +497,23 @@
                     <div id="orderItems">
                         <!-- Order items will be populated here -->
                     </div>
+                </div>
+                <!-- Prescription Upload Section (conditionally shown) -->
+                <div class="prescription-section" id="prescriptionSection" style="display: none;">
+                    <div class="prescription-title">
+                        💊 Prescription Required
+                    </div>
+                    <p style="font-size: 14px; color: #856404; margin-bottom: 15px;">
+                        One or more items in your order require a prescription. Please upload your prescription document.
+                    </p>
+                    <button class="upload-prescription-btn" onclick="triggerFileUpload()">
+                        📎 Upload Prescription
+                    </button>
+                            <input type="file" 
+                           id="prescriptionFile" 
+                           class="prescription-file-input"
+                           accept=".pdf,.jpg,.jpeg,.png">
+                    <div id="uploadStatus" class="upload-status"></div>
                 </div>
 
                 <!-- Delivery Information Section -->
@@ -522,6 +624,14 @@
         const deliveryFee = 500;
         let currentCartId = null;
         let selectedPaymentMethod = 'card';
+        // Baserow configuration (add these constants at the top of your script)
+        const BASEROW_API_TOKEN = '1GP5AyyvuuRS9F5zS66WIFD5IUrEf1ue'; // Replace with your actual token
+        const BASEROW_TABLE_ID = '658869'; // Replace with your table ID
+
+        // Global function to trigger file upload
+        window.triggerFileUpload = function() {
+            document.getElementById('prescriptionFile').click();
+        };
 
         // Global functions
         window.goBack = function() {
@@ -742,6 +852,158 @@
             document.getElementById('checkoutSections').style.display = 'block';
         }
 
+        // Add event listener for file input (instead of onchange attribute)
+        function setupPrescriptionUpload() {
+            const fileInput = document.getElementById('prescriptionFile');
+            if (fileInput) {
+                fileInput.addEventListener('change', handlePrescriptionUpload);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            setupPrescriptionUpload();
+        });
+
+
+        // Handle prescription upload function
+        async function handlePrescriptionUpload(eventOrFiles) {
+            // normalize: support (event) or (FileList) being passed
+            const files = eventOrFiles?.target?.files ?? eventOrFiles?.files ?? eventOrFiles;
+            // make sure we have an HTML element reference too
+            const fileInputEl = document.getElementById('prescriptionFile');
+            const uploadStatusEl = document.getElementById('uploadStatus');
+
+            function setStatus(text, kind = 'working') {
+                if (!uploadStatusEl) return;
+                uploadStatusEl.style.display = 'block';
+                uploadStatusEl.className = 'upload-status ' + (kind === 'working' ? 'upload-working' : kind === 'success' ? 'upload-success' : 'upload-error');
+                if (kind === 'working') {
+                    uploadStatusEl.innerHTML = '<div class="status-row"><div class="tiny-spinner"></div><div>' + text + '</div></div>';
+                } else {
+                    uploadStatusEl.textContent = text;
+                }
+            }
+
+            function clearStatusLater(ms = 5000) {
+                setTimeout(() => { 
+                    if (uploadStatusEl) { uploadStatusEl.style.display = 'none'; uploadStatusEl.textContent = ''; } 
+                }, ms);
+            }
+
+            if (!files || files.length === 0) {
+                // nothing selected - do nothing
+                return;
+            }
+
+            const file = files[0];
+            if (!file) return;
+
+            // basic validation (guarded)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = ['image/jpeg','image/png','image/jpg','application/pdf'];
+
+            // safeguard: if file.type is undefined, do an extension fallback check
+            const fileType = file.type || (file.name && file.name.split('.').pop() ? 'fallback/' + file.name.split('.').pop().toLowerCase() : '');
+
+            if (!allowedTypes.includes(fileType) && !allowedTypes.some(t => (t === 'image/jpeg' && fileType.startsWith('image/')))) {
+                setStatus('Please upload a JPG, PNG or PDF file', 'error');
+                return;
+            }
+            if (file.size > maxSize) {
+                setStatus('File too large — must be under 5MB', 'error');
+                return;
+            }
+
+            if (!currentUser) {
+                setStatus('You must be signed in to upload a prescription', 'error');
+                showError('Please sign in first');
+                return;
+            }
+
+            const customerName = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Unknown');
+            const email = currentUser.email || '';
+
+            // disable input while uploading
+            if (fileInputEl) fileInputEl.disabled = true;
+            setStatus('Uploading prescription — please wait...', 'working');
+
+            try {
+                // 1) Upload file to Baserow (multipart)
+                const uploadUrl = 'https://api.baserow.io/api/user-files/upload-file/';
+                const fd = new FormData();
+                fd.append('file', file, file.name);
+
+                const uploadResp = await fetch(uploadUrl, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Token ' + BASEROW_API_TOKEN },
+                    body: fd
+                });
+
+                if (!uploadResp.ok) {
+                    const text = await uploadResp.text();
+                    throw new Error('File upload failed: ' + (text || uploadResp.statusText));
+                }
+
+                const uploadJson = await uploadResp.json();
+                if (!uploadJson.name) throw new Error('Unexpected upload response: missing "name"');
+                const uploadedFileName = uploadJson.name;
+
+                // 2) Create row in Baserow table
+                if (typeof BASEROW_TABLE_ID === 'undefined') {
+                    // prevent runtime blowup; remind developer to set the ID
+                    throw new Error('BASEROW_TABLE_ID is not defined. Please set it to your table id.');
+                }
+
+                const createRowUrl = `https://api.baserow.io/api/database/rows/table/${BASEROW_TABLE_ID}/?user_field_names=true`;
+                const payload = {
+                    "Customer Name": customerName,
+                    "Email": email,
+                    "File": [{ "name": uploadedFileName }]
+                };
+
+                const createResp = await fetch(createRowUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Token ' + BASEROW_API_TOKEN,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!createResp.ok) {
+                    const text = await createResp.text();
+                    throw new Error('Failed to create row: ' + (text || createResp.statusText));
+                }
+
+                setStatus('✅ Prescription uploaded — proceed with your payment', 'success');
+                clearStatusLater(7000);
+                showSuccess('Prescription received — proceed with your payment');
+
+                // reset input
+                if (fileInputEl) fileInputEl.value = '';
+            } catch (err) {
+                console.error('Prescription upload error', err);
+                setStatus('Upload failed — please try again or contact support', 'error');
+                showError('Upload failed. Please try again.');
+            } finally {
+                if (fileInputEl) fileInputEl.disabled = false;
+            }
+        }
+
+        // Function to check if any items require prescription
+        function checkPrescriptionRequired() {
+            const hasPrescriptionRequired = cartItems.some(item => item.prescriptionRequired === true || item.prescriptionRequired === 'true');
+            const prescriptionSection = document.getElementById('prescriptionSection');
+            
+            if (hasPrescriptionRequired) {
+                prescriptionSection.style.display = 'block';
+            } else {
+                prescriptionSection.style.display = 'none';
+            }
+        }
+
+        // 4. Update your renderOrderItems function to include the prescription check
+        // Replace your existing renderOrderItems function with this updated version:
+
         function renderOrderItems() {
             const orderItemsContainer = document.getElementById('orderItems');
             
@@ -760,14 +1022,16 @@
                         <div class="item-name">${item.product_name}</div>
                         <div class="item-quantity">Qty: ${item.quantity}</div>
                         <div class="item-price">${formatPrice(item.price_per_unit * item.quantity)}</div>
+                        ${item.prescriptionRequired === true || item.prescriptionRequired === 'true' ? 
+                            '<div style="font-size: 11px; color: #856404; margin-top: 2px;">📋 Prescription Required</div>' : ''}
                     </div>
                 </div>
             `).join('');
 
             updateSummary();
+            checkPrescriptionRequired(); // Add this line
             showCheckout();
         }
-
         function calculateSubtotal() {
             return cartItems.reduce((sum, item) => sum + (item.price_per_unit * item.quantity), 0);
         }
